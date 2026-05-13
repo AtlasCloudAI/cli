@@ -1,0 +1,37 @@
+{
+  "name": "@atlascloud/cli",
+  "version": "0.0.0",
+  "description": "AtlasCloud CLI — call LLM, image, and video models from your terminal.",
+  "bin": {
+    "atlas": "bin/atlas.js",
+    "atlas-mcp": "bin/atlas-mcp.js"
+  },
+  "scripts": {
+    "postinstall": "node install.js"
+  },
+  "files": [
+    "bin/",
+    "install.js",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=14"
+  },
+  "os": [
+    "darwin",
+    "linux"
+  ],
+  "cpu": [
+    "x64",
+    "arm64"
+  ],
+  "license": "MIT",
+  "homepage": "https://atlascloud.ai",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AtlasCloudAI/cli.git"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
