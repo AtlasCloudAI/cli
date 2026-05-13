@@ -13,7 +13,7 @@ set -e
 
 REPO="AtlasCloudAI/cli"
 PREFIX="/usr/local"
-TAG=""
+TAG="v0.1.2"
 INSTALL_CLI=yes
 
 while [ "$#" -gt 0 ]; do
@@ -43,12 +43,7 @@ esac
 TMPDIR="$(mktemp -d)"
 trap 'rm -rf "$TMPDIR"' EXIT
 
-# 2. Resolve latest tag
-if [ -z "$TAG" ]; then
-  TAG="$(curl -fsSL "https://api.github.com/repos/$REPO/releases/latest" \
-    | sed -n 's/.*"tag_name": *"\([^"]*\)".*/\1/p' | head -n 1)"
-  [ -z "$TAG" ] && { echo "Failed to determine latest release." >&2; exit 1; }
-fi
+# 2. Resolve tag. The default is pinned to avoid GitHub API rate limits.
 VER="${TAG#v}"
 
 # 3. Download + extract
