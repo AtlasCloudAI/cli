@@ -33,8 +33,6 @@ The installer downloads the matching GitHub Release archive and verifies it agai
 
 ### Homebrew
 
-Pending `AtlasCloudAI/homebrew-tap` creation:
-
 ```bash
 brew install AtlasCloudAI/tap/atlascloud
 ```
