@@ -25,7 +25,7 @@ module.exports = function run(binaryName) {
 
   if (!fs.existsSync(bin)) {
     console.error(
-      `@atlascloud/cli: binary not found at ${bin}. Reinstall: npm i -g @atlascloud/cli`
+      `atlascloud-cli: binary not found at ${bin}. Reinstall: npm i -g atlascloud-cli`
     );
     process.exit(1);
   }
@@ -50,7 +50,7 @@ module.exports = function run(binaryName) {
   });
 
   child.on("error", (err) => {
-    console.error("@atlascloud/cli: failed to exec:", err.message);
+    console.error("atlascloud-cli: failed to exec:", err.message);
     process.exit(1);
   });
 };

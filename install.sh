@@ -1,12 +1,10 @@
 #!/bin/sh
-# cli installer — installs `atlas` (CLI) and `atlas-mcp` (MCP server, v1+).
+# cli installer — installs `atlas` (CLI).
 #
 # Usage:
 #   curl -fsSL https://raw.githubusercontent.com/AtlasCloudAI/cli/main/install.sh | sh
 #   ... | sh -s -- --prefix=$HOME/.local
-#   ... | sh -s -- --tag v0.1.0
-#   ... | sh -s -- --cli-only
-#   ... | sh -s -- --mcp-only
+#   ... | sh -s -- --tag v0.1.2
 #
 # Telemetry (opt-in): set ATLAS_TELEMETRY=1 to send an anonymous install
 # ping (OS, arch, version) to api.atlascloud.ai/i/v1. Off by default.
@@ -17,7 +15,6 @@ REPO="AtlasCloudAI/cli"
 PREFIX="/usr/local"
 TAG=""
 INSTALL_CLI=yes
-INSTALL_MCP=yes
 
 while [ "$#" -gt 0 ]; do
   case "$1" in
@@ -25,8 +22,7 @@ while [ "$#" -gt 0 ]; do
     --prefix)    PREFIX="$2"; shift 2 ;;
     --tag=*)     TAG="${1#*=}"; shift ;;
     --tag)       TAG="$2"; shift 2 ;;
-    --cli-only)  INSTALL_MCP=no; shift ;;
-    --mcp-only)  INSTALL_CLI=no; shift ;;
+    --cli-only)  INSTALL_CLI=yes; shift ;;
     *) echo "Unknown arg: $1" >&2; exit 1 ;;
   esac
 done
@@ -97,12 +93,6 @@ if [ "$INSTALL_CLI" = "yes" ]; then
   INSTALLED="$INSTALLED atlas"
 fi
 
-if [ "$INSTALL_MCP" = "yes" ]; then
-  run install -m 0755 "$TMPDIR/atlas-mcp" "$BIN_DIR/atlas-mcp"
-  [ "$OS" = "darwin" ] && run xattr -d com.apple.quarantine "$BIN_DIR/atlas-mcp" 2>/dev/null || true
-  INSTALLED="$INSTALLED atlas-mcp"
-fi
-
 # 5. Anonymous install ping — OPT-IN. Default: off.
 # Set ATLAS_TELEMETRY=1 if you want to help upstream see how many people
 # install, on which platform/version.
@@ -115,7 +105,6 @@ fi
 echo ""
 echo "Installed:$INSTALLED"
 [ "$INSTALL_CLI" = "yes" ] && echo "  $($BIN_DIR/atlas version 2>/dev/null || echo atlas)"
-[ "$INSTALL_MCP" = "yes" ] && echo "  $($BIN_DIR/atlas-mcp version 2>/dev/null || echo atlas-mcp)"
 
 echo ""
 echo "Next: atlas auth login"

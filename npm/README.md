@@ -1,14 +1,14 @@
-# @atlascloud/cli
+# atlascloud-cli
 
 AtlasCloud CLI — call LLM, image, and video models from your terminal.
 
 ## Install
 
 ```bash
-npm install -g @atlascloud/cli
+npm install -g atlascloud-cli
 ```
 
-The postinstall step downloads the prebuilt `atlas` and `atlas-mcp` binaries for your platform from the public GitHub release and verifies the archive against `checksums.txt`.
+The postinstall step downloads the prebuilt `atlas` binary for your platform from the public GitHub release and verifies the archive against `checksums.txt`.
 
 Supported npm platforms: macOS and Linux on x64 or arm64. Windows package-manager support will be added separately.
 

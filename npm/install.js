@@ -24,7 +24,7 @@ const arch = ARCH_MAP[process.arch];
 
 if (!platform || !arch) {
   console.error(
-    `@atlascloud/cli: unsupported platform ${process.platform}/${process.arch}`
+    `atlascloud-cli: unsupported platform ${process.platform}/${process.arch}`
   );
   console.error("Supported: darwin|linux x x64|arm64");
   process.exit(1);
@@ -32,7 +32,7 @@ if (!platform || !arch) {
 
 if (VERSION === "0.0.0") {
   console.error(
-    "@atlascloud/cli: package version is 0.0.0; publish with the release tag version"
+    "atlascloud-cli: package version is 0.0.0; publish with the release tag version"
   );
   process.exit(1);
 }
@@ -128,7 +128,7 @@ function verifyChecksum() {
 (async () => {
   fs.mkdirSync(vendorDir, { recursive: true });
 
-  console.log(`@atlascloud/cli: downloading ${archiveURL}`);
+  console.log(`atlascloud-cli: downloading ${archiveURL}`);
   await download(archiveURL, archivePath);
   await download(checksumsURL, checksumsPath);
   verifyChecksum();
@@ -137,7 +137,6 @@ function verifyChecksum() {
     stdio: "inherit"
   });
   fs.chmodSync(path.join(vendorDir, "atlas"), 0o755);
-  fs.chmodSync(path.join(vendorDir, "atlas-mcp"), 0o755);
 
   fs.writeFileSync(
     metadataPath,
@@ -155,8 +154,8 @@ function verifyChecksum() {
   );
   fs.rmSync(archivePath, { force: true });
   fs.rmSync(checksumsPath, { force: true });
-  console.log("@atlascloud/cli: installed atlas and atlas-mcp");
+  console.log("atlascloud-cli: installed atlas");
 })().catch((err) => {
-  console.error("@atlascloud/cli: install failed:", err.message);
+  console.error("atlascloud-cli: install failed:", err.message);
   process.exit(1);
 });

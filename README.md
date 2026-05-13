@@ -4,7 +4,7 @@ Call AtlasCloud LLM, image, and video models from your shell.
 
 ![AtlasCloud CLI demo](demo.gif)
 
-This repository hosts public installers, release artifacts, and lightweight package-manager wrappers for the `atlas` and `atlas-mcp` binaries. The Go source repository is maintained separately.
+This repository hosts public installers, release artifacts, and lightweight package-manager wrappers for the `atlas` CLI. The Go source repository is maintained separately.
 
 ## Install
 
@@ -23,11 +23,10 @@ INSTALLER=https://raw.githubusercontent.com/AtlasCloudAI/cli/main/install.sh
 curl -fsSL "$INSTALLER" | sh -s -- --prefix="$HOME/.local"
 
 # Pin version
-curl -fsSL "$INSTALLER" | sh -s -- --tag v0.1.1
+curl -fsSL "$INSTALLER" | sh -s -- --tag v0.1.2
 
-# Install only one binary
+# Explicit CLI-only install (default)
 curl -fsSL "$INSTALLER" | sh -s -- --cli-only
-curl -fsSL "$INSTALLER" | sh -s -- --mcp-only
 ```
 
 The installer downloads the matching GitHub Release archive and verifies it against `checksums.txt`.
@@ -40,7 +39,7 @@ Pending `AtlasCloudAI/homebrew-tap` creation:
 brew install AtlasCloudAI/tap/atlascloud
 ```
 
-The formula is named `atlascloud`, but it installs the `atlas` and `atlas-mcp` commands.
+The formula is named `atlascloud`, but it installs the `atlas` command.
 
 ### npm
 
@@ -48,7 +47,7 @@ The formula is named `atlascloud`, but it installs the `atlas` and `atlas-mcp` c
 npm install -g atlascloud-cli
 ```
 
-The npm package is a thin wrapper. Its postinstall script downloads the matching prebuilt release archive and verifies the checksum before exposing `atlas` and `atlas-mcp`.
+The npm package is a thin wrapper. Its postinstall script downloads the matching prebuilt release archive and verifies the checksum before exposing `atlas`.
 
 ### Manual
 
@@ -80,7 +79,6 @@ atlas chat "hi" --model deepseek-ai/DeepSeek-V3-0324
 | `atlas generate` | Generate images and videos, poll job status |
 | `atlas account` | Show account and credit information |
 | `atlas version` | Print build information |
-| `atlas-mcp serve` | Run the MCP server entry point |
 
 Run `atlas --help` or `atlas <command> --help` for full flag reference.
 
@@ -110,7 +108,7 @@ npm install -g atlascloud-cli@latest
 
 ```bash
 # curl installer, default prefix
-sudo rm -f /usr/local/bin/atlas /usr/local/bin/atlas-mcp
+sudo rm -f /usr/local/bin/atlas
 
 # Homebrew
 brew uninstall atlascloud
