@@ -44,10 +44,8 @@ The formula is named `atlascloud`, but it installs the `atlas` and `atlas-mcp` c
 
 ### npm
 
-Pending npm registry publish:
-
 ```bash
-npm install -g @atlascloud/cli
+npm install -g atlascloud-cli
 ```
 
 The npm package is a thin wrapper. Its postinstall script downloads the matching prebuilt release archive and verifies the checksum before exposing `atlas` and `atlas-mcp`.
@@ -105,7 +103,7 @@ curl -fsSL https://raw.githubusercontent.com/AtlasCloudAI/cli/main/install.sh | 
 brew update && brew upgrade atlascloud
 
 # npm
-npm install -g @atlascloud/cli@latest
+npm install -g atlascloud-cli@latest
 ```
 
 ## Uninstall
@@ -118,7 +116,7 @@ sudo rm -f /usr/local/bin/atlas /usr/local/bin/atlas-mcp
 brew uninstall atlascloud
 
 # npm
-npm uninstall -g @atlascloud/cli
+npm uninstall -g atlascloud-cli
 ```
 
 ## Troubleshooting
