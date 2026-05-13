@@ -23,7 +23,7 @@ INSTALLER=https://raw.githubusercontent.com/AtlasCloudAI/cli/main/install.sh
 curl -fsSL "$INSTALLER" | sh -s -- --prefix="$HOME/.local"
 
 # Pin version
-curl -fsSL "$INSTALLER" | sh -s -- --tag v0.1.2
+curl -fsSL "$INSTALLER" | sh -s -- --tag v0.1.3
 
 # Explicit CLI-only install (default)
 curl -fsSL "$INSTALLER" | sh -s -- --cli-only
@@ -75,7 +75,7 @@ atlas chat "hi" --model deepseek-ai/DeepSeek-V3-0324
 | `atlas chat` | Send a chat completion request |
 | `atlas models` | List and inspect available models |
 | `atlas generate` | Generate images and videos, poll job status |
-| `atlas account` | Show account and credit information |
+| `atlas account` | Upcoming: account and billing endpoints are not available yet |
 | `atlas version` | Print build information |
 
 Run `atlas --help` or `atlas <command> --help` for full flag reference.
