@@ -34,6 +34,8 @@ The installer downloads the matching GitHub Release archive and verifies it agai
 
 ### Homebrew
 
+Pending `AtlasCloudAI/homebrew-tap` creation:
+
 ```bash
 brew install AtlasCloudAI/tap/atlascloud
 ```
@@ -41,6 +43,8 @@ brew install AtlasCloudAI/tap/atlascloud
 The formula is named `atlascloud`, but it installs the `atlas` and `atlas-mcp` commands.
 
 ### npm
+
+Pending npm registry publish:
 
 ```bash
 npm install -g @atlascloud/cli
