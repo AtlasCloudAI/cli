@@ -12,7 +12,8 @@ const VERSION = process.env.ATLAS_CLI_VERSION || pkg.version;
 
 const PLATFORM_MAP = {
   darwin: "darwin",
-  linux: "linux"
+  linux: "linux",
+  win32: "windows"
 };
 const ARCH_MAP = {
   x64: "amd64",
@@ -26,7 +27,7 @@ if (!platform || !arch) {
   console.error(
     `atlascloud-cli: unsupported platform ${process.platform}/${process.arch}`
   );
-  console.error("Supported: darwin|linux x x64|arm64");
+  console.error("Supported: darwin|linux|win32 x x64|arm64");
   process.exit(1);
 }
 
@@ -38,7 +39,9 @@ if (VERSION === "0.0.0") {
 }
 
 const tag = `v${VERSION}`;
-const archiveName = `cli_${VERSION}_${platform}_${arch}.tar.gz`;
+const archiveExt = platform === "windows" ? "zip" : "tar.gz";
+const archiveName = `cli_${VERSION}_${platform}_${arch}.${archiveExt}`;
+const binaryName = platform === "windows" ? "atlas.exe" : "atlas";
 const releaseBase = `https://github.com/${REPO}/releases/download/${tag}`;
 const archiveURL = `${releaseBase}/${archiveName}`;
 const checksumsURL = `${releaseBase}/checksums.txt`;
@@ -125,6 +128,36 @@ function verifyChecksum() {
   }
 }
 
+function extractArchive() {
+  if (platform === "windows") {
+    execFileSync(
+      "powershell.exe",
+      [
+        "-NoLogo",
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-Command",
+        "Expand-Archive -LiteralPath $env:ATLAS_ARCHIVE -DestinationPath $env:ATLAS_VENDOR -Force"
+      ],
+      {
+        stdio: "inherit",
+        env: {
+          ...process.env,
+          ATLAS_ARCHIVE: archivePath,
+          ATLAS_VENDOR: vendorDir
+        }
+      }
+    );
+    return;
+  }
+
+  execFileSync("tar", ["-xzf", archivePath, "-C", vendorDir], {
+    stdio: "inherit"
+  });
+}
+
 (async () => {
   fs.mkdirSync(vendorDir, { recursive: true });
 
@@ -133,10 +166,10 @@ function verifyChecksum() {
   await download(checksumsURL, checksumsPath);
   verifyChecksum();
 
-  execFileSync("tar", ["-xzf", archivePath, "-C", vendorDir], {
-    stdio: "inherit"
-  });
-  fs.chmodSync(path.join(vendorDir, "atlas"), 0o755);
+  extractArchive();
+  if (platform !== "windows") {
+    fs.chmodSync(path.join(vendorDir, binaryName), 0o755);
+  }
 
   fs.writeFileSync(
     metadataPath,

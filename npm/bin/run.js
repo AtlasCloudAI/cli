@@ -21,7 +21,8 @@ function readInstallMetadata(vendorDir) {
 
 module.exports = function run(binaryName) {
   const vendorDir = path.join(__dirname, "..", "vendor");
-  const bin = path.join(vendorDir, binaryName);
+  const executable = process.platform === "win32" ? `${binaryName}.exe` : binaryName;
+  const bin = path.join(vendorDir, executable);
 
   if (!fs.existsSync(bin)) {
     console.error(

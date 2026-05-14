@@ -21,15 +21,27 @@ INSTALLER=https://raw.githubusercontent.com/AtlasCloudAI/cli/main/install.sh
 
 # Custom prefix, no sudo if the directory is writable
 curl -fsSL "$INSTALLER" | sh -s -- --prefix="$HOME/.local"
-
-# Pin version
-curl -fsSL "$INSTALLER" | sh -s -- --tag v0.1.5
-
-# Explicit CLI-only install (default)
-curl -fsSL "$INSTALLER" | sh -s -- --cli-only
 ```
 
-The installer downloads the matching GitHub Release archive and verifies it against `checksums.txt`.
+The installer always uses the latest GitHub Release, downloads the matching archive, and verifies it against `checksums.txt`.
+
+### Windows
+
+```powershell
+irm https://raw.githubusercontent.com/AtlasCloudAI/cli/main/install.ps1 | iex
+```
+
+Options:
+
+```powershell
+# Custom install dir
+$env:ATLAS_INSTALL_DIR="$HOME\bin"; irm https://raw.githubusercontent.com/AtlasCloudAI/cli/main/install.ps1 | iex
+
+# Skip adding atlas.exe to user PATH
+$env:ATLAS_NO_PATH="1"; irm https://raw.githubusercontent.com/AtlasCloudAI/cli/main/install.ps1 | iex
+```
+
+The Windows installer always uses the latest GitHub Release, downloads the matching `windows_amd64` or `windows_arm64` zip, verifies it against `checksums.txt`, installs `atlas.exe`, and adds the install directory to the user PATH by default.
 
 ### Homebrew
 
@@ -46,6 +58,8 @@ npm install -g atlascloud-cli
 ```
 
 The npm package is a thin wrapper. Its postinstall script downloads the matching prebuilt release archive and verifies the checksum before exposing `atlas`.
+
+Supported npm platforms: macOS, Linux, and Windows on x64 or arm64.
 
 ### Manual
 

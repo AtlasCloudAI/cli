@@ -4,7 +4,6 @@
 # Usage:
 #   curl -fsSL https://raw.githubusercontent.com/AtlasCloudAI/cli/main/install.sh | sh
 #   ... | sh -s -- --prefix=$HOME/.local
-#   ... | sh -s -- --tag v0.1.5
 #
 # Telemetry (opt-in): set ATLAS_TELEMETRY=1 to send an anonymous install
 # ping (OS, arch, version) to api.atlascloud.ai/i/v1. Off by default.
@@ -13,16 +12,11 @@ set -e
 
 REPO="AtlasCloudAI/cli"
 PREFIX="/usr/local"
-TAG="v0.1.5"
-INSTALL_CLI=yes
 
 while [ "$#" -gt 0 ]; do
   case "$1" in
     --prefix=*)  PREFIX="${1#*=}"; shift ;;
     --prefix)    PREFIX="$2"; shift 2 ;;
-    --tag=*)     TAG="${1#*=}"; shift ;;
-    --tag)       TAG="$2"; shift 2 ;;
-    --cli-only)  INSTALL_CLI=yes; shift ;;
     *) echo "Unknown arg: $1" >&2; exit 1 ;;
   esac
 done
@@ -37,13 +31,19 @@ case "$ARCH" in
 esac
 case "$OS" in
   darwin|linux) ;;
-  *) echo "Unsupported OS: $OS (use scoop/winget on Windows)" >&2; exit 1 ;;
+  *) echo "Unsupported OS: $OS (use install.ps1 or npm on Windows)" >&2; exit 1 ;;
 esac
 
 TMPDIR="$(mktemp -d)"
 trap 'rm -rf "$TMPDIR"' EXIT
 
-# 2. Resolve tag. The default is pinned to avoid GitHub API rate limits.
+# 2. Resolve latest tag.
+LATEST_JSON="$(curl -fsSL \
+  -H "Accept: application/vnd.github+json" \
+  -H "User-Agent: atlas-installer" \
+  "https://api.github.com/repos/$REPO/releases/latest")"
+TAG="$(printf '%s' "$LATEST_JSON" | sed -n 's/.*"tag_name"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' | head -n 1)"
+[ -z "$TAG" ] && { echo "Could not resolve latest release tag." >&2; exit 1; }
 VER="${TAG#v}"
 
 # 3. Download + extract
@@ -80,26 +80,21 @@ BIN_DIR="$PREFIX/bin"
 [ -d "$BIN_DIR" ] || { mkdir -p "$BIN_DIR" 2>/dev/null || sudo mkdir -p "$BIN_DIR"; }
 run() { if [ -w "$BIN_DIR" ]; then "$@"; else sudo "$@"; fi; }
 
-INSTALLED=""
-if [ "$INSTALL_CLI" = "yes" ]; then
-  run install -m 0755 "$TMPDIR/atlas" "$BIN_DIR/atlas"
-  # macOS: strip quarantine xattr so Gatekeeper does not block exec.
-  [ "$OS" = "darwin" ] && run xattr -d com.apple.quarantine "$BIN_DIR/atlas" 2>/dev/null || true
-  INSTALLED="$INSTALLED atlas"
-fi
+run install -m 0755 "$TMPDIR/atlas" "$BIN_DIR/atlas"
+# macOS: strip quarantine xattr so Gatekeeper does not block exec.
+[ "$OS" = "darwin" ] && run xattr -d com.apple.quarantine "$BIN_DIR/atlas" 2>/dev/null || true
 
 # 5. Anonymous install ping — OPT-IN. Default: off.
 # Set ATLAS_TELEMETRY=1 if you want to help upstream see how many people
 # install, on which platform/version.
 if [ "$ATLAS_TELEMETRY" = "1" ]; then
-  PRODUCTS=$(echo "$INSTALLED" | tr ' ' ',' | sed 's/^,//')
-  curl -fsSL "https://api.atlascloud.ai/i/v1?os=$OS&arch=$ARCH&version=$VER&products=$PRODUCTS&channel=installsh" \
+  curl -fsSL "https://api.atlascloud.ai/i/v1?os=$OS&arch=$ARCH&version=$VER&products=atlas&channel=installsh" \
     >/dev/null 2>&1 || true
 fi
 
 echo ""
-echo "Installed:$INSTALLED"
-[ "$INSTALL_CLI" = "yes" ] && echo "  $($BIN_DIR/atlas version 2>/dev/null || echo atlas)"
+echo "Installed: atlas"
+echo "  $($BIN_DIR/atlas version 2>/dev/null || echo atlas)"
 
 echo ""
 echo "Next: atlas auth login"

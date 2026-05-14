@@ -10,7 +10,7 @@ npm install -g atlascloud-cli
 
 The postinstall step downloads the prebuilt `atlas` binary for your platform from the public GitHub release and verifies the archive against `checksums.txt`.
 
-Supported npm platforms: macOS and Linux on x64 or arm64. Windows package-manager support will be added separately.
+Supported npm platforms: macOS, Linux, and Windows on x64 or arm64.
 
 ## Usage
 
