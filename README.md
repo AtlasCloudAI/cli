@@ -23,7 +23,7 @@ INSTALLER=https://raw.githubusercontent.com/AtlasCloudAI/cli/main/install.sh
 curl -fsSL "$INSTALLER" | sh -s -- --prefix="$HOME/.local"
 
 # Pin version
-curl -fsSL "$INSTALLER" | sh -s -- --tag v0.1.3
+curl -fsSL "$INSTALLER" | sh -s -- --tag v0.1.4
 
 # Explicit CLI-only install (default)
 curl -fsSL "$INSTALLER" | sh -s -- --cli-only

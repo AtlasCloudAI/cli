@@ -4,7 +4,7 @@
 # Usage:
 #   curl -fsSL https://raw.githubusercontent.com/AtlasCloudAI/cli/main/install.sh | sh
 #   ... | sh -s -- --prefix=$HOME/.local
-#   ... | sh -s -- --tag v0.1.3
+#   ... | sh -s -- --tag v0.1.4
 #
 # Telemetry (opt-in): set ATLAS_TELEMETRY=1 to send an anonymous install
 # ping (OS, arch, version) to api.atlascloud.ai/i/v1. Off by default.
@@ -13,7 +13,7 @@ set -e
 
 REPO="AtlasCloudAI/cli"
 PREFIX="/usr/local"
-TAG="v0.1.3"
+TAG="v0.1.4"
 INSTALL_CLI=yes
 
 while [ "$#" -gt 0 ]; do
