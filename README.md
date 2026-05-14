@@ -59,8 +59,6 @@ npm install -g atlascloud-cli
 
 The npm package is a thin wrapper. Its postinstall script downloads the matching prebuilt release archive and verifies the checksum before exposing `atlas`.
 
-Supported npm platforms: macOS, Linux, and Windows on x64 or arm64.
-
 ### Manual
 
 Download the archive for your OS and architecture from [Releases](https://github.com/AtlasCloudAI/cli/releases), extract it, and place the binaries in your `PATH`.
