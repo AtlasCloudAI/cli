@@ -1,20 +1,35 @@
 param(
   [string]$InstallDir = $env:ATLAS_INSTALL_DIR,
+  [string]$Version = $env:ATLAS_VERSION,
   [switch]$NoPath
 )
 
 $ErrorActionPreference = "Stop"
 
 $Repo = if ($env:ATLAS_RELEASE_REPO) { $env:ATLAS_RELEASE_REPO } else { "AtlasCloudAI/cli" }
-$LatestRelease = Invoke-RestMethod `
-  -Headers @{ Accept = "application/vnd.github+json"; "User-Agent" = "atlas-installer" } `
-  -Uri "https://api.github.com/repos/$Repo/releases/latest"
-$Tag = $LatestRelease.tag_name
-if ([string]::IsNullOrWhiteSpace($Tag)) {
-  throw "Could not resolve latest release tag."
+$VersionUrl = if ($env:ATLAS_VERSION_URL) { $env:ATLAS_VERSION_URL } else { "https://raw.githubusercontent.com/$Repo/main/VERSION" }
+
+function Normalize-Version {
+  param([string]$RawVersion)
+
+  $Normalized = ($RawVersion -replace "\s", "") -replace "^v", ""
+  if ([string]::IsNullOrWhiteSpace($Normalized) -or $Normalized -notmatch "^[0-9]" -or $Normalized.Contains("/") -or $Normalized.Contains("\")) {
+    throw "Invalid Atlas CLI version: $RawVersion"
+  }
+  return $Normalized
 }
 
-$Version = $Tag -replace "^v", ""
+if ([string]::IsNullOrWhiteSpace($Version)) {
+  try {
+    $Version = Normalize-Version -RawVersion (Invoke-WebRequest -UseBasicParsing -Uri $VersionUrl).Content
+  } catch {
+    throw "Could not resolve latest Atlas CLI version from ${VersionUrl}. Pass -Version 0.1.10 or set ATLAS_VERSION. $($_.Exception.Message)"
+  }
+} else {
+  $Version = Normalize-Version -RawVersion $Version
+}
+
+$Tag = "v$Version"
 if ([string]::IsNullOrWhiteSpace($InstallDir)) {
   $LocalAppData = if ($env:LOCALAPPDATA) { $env:LOCALAPPDATA } else { Join-Path $HOME "AppData\Local" }
   $InstallDir = Join-Path $LocalAppData "AtlasCloud\bin"

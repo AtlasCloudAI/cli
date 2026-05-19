@@ -4,22 +4,62 @@
 # Usage:
 #   curl -fsSL https://raw.githubusercontent.com/AtlasCloudAI/cli/main/install.sh | sh
 #   ... | sh -s -- --prefix=$HOME/.local
+#   ... | sh -s -- --version=0.1.10
 #
 # Telemetry (opt-in): set ATLAS_TELEMETRY=1 to send an anonymous install
 # ping (OS, arch, version) to api.atlascloud.ai/i/v1. Off by default.
 
 set -e
 
-REPO="AtlasCloudAI/cli"
+REPO="${ATLAS_RELEASE_REPO:-AtlasCloudAI/cli}"
 PREFIX="/usr/local"
+VERSION="${ATLAS_VERSION:-}"
+VERSION_URL="${ATLAS_VERSION_URL:-https://raw.githubusercontent.com/$REPO/main/VERSION}"
 
 while [ "$#" -gt 0 ]; do
   case "$1" in
     --prefix=*)  PREFIX="${1#*=}"; shift ;;
     --prefix)    PREFIX="$2"; shift 2 ;;
+    --version=*) VERSION="${1#*=}"; shift ;;
+    --version)   VERSION="$2"; shift 2 ;;
     *) echo "Unknown arg: $1" >&2; exit 1 ;;
   esac
 done
+
+normalize_version() {
+  v="$(printf '%s' "$1" | tr -d '[:space:]')"
+  v="${v#v}"
+  case "$v" in
+    ""|*/*|*\\*) return 1 ;;
+    [0-9]*) ;;
+    *) return 1 ;;
+  esac
+  printf '%s' "$v"
+}
+
+resolve_version() {
+  if [ -n "$VERSION" ]; then
+    normalize_version "$VERSION" || {
+      echo "Invalid version: $VERSION" >&2
+      exit 1
+    }
+    return
+  fi
+
+  raw_version="$(curl -fsSL "$VERSION_URL" 2>/dev/null || true)"
+  if [ -n "$raw_version" ]; then
+    normalize_version "$raw_version" || {
+      echo "Invalid version from $VERSION_URL: $raw_version" >&2
+      echo "Try passing --version=0.1.10 explicitly." >&2
+      exit 1
+    }
+    return
+  fi
+
+  echo "Could not resolve latest Atlas CLI version from $VERSION_URL." >&2
+  echo "Try passing --version=0.1.10 or setting ATLAS_VERSION." >&2
+  exit 1
+}
 
 # 1. Detect platform
 OS="$(uname -s | tr '[:upper:]' '[:lower:]')"
@@ -37,14 +77,10 @@ esac
 TMPDIR="$(mktemp -d)"
 trap 'rm -rf "$TMPDIR"' EXIT
 
-# 2. Resolve latest tag.
-LATEST_JSON="$(curl -fsSL \
-  -H "Accept: application/vnd.github+json" \
-  -H "User-Agent: atlas-installer" \
-  "https://api.github.com/repos/$REPO/releases/latest")"
-TAG="$(printf '%s' "$LATEST_JSON" | sed -n 's/.*"tag_name"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' | head -n 1)"
-[ -z "$TAG" ] && { echo "Could not resolve latest release tag." >&2; exit 1; }
-VER="${TAG#v}"
+# 2. Resolve version without using the GitHub Releases API. Anonymous GitHub
+# API calls are limited to 60/hour/IP and can make installers flaky.
+VER="$(resolve_version)"
+TAG="v$VER"
 
 # 3. Download + extract
 TARBALL="cli_${VER}_${OS}_${ARCH}.tar.gz"
