@@ -198,3 +198,5 @@ Bugs and feature requests: [GitHub Issues](https://github.com/AtlasCloudAI/cli/i
 ## License
 
 MIT
+
+<!-- TODO(hero): add a terminal recording or screenshot showing atlas CLI generating an image or video. -->
