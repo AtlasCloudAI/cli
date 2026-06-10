@@ -25,6 +25,20 @@ This repository hosts public installers, release artifacts, and lightweight pack
 
 - 📚 **Explore more** — [300+ models »](https://www.atlascloud.ai/models?utm_source=github&utm_campaign=cli)
 
+## Contents
+
+- [Supported Models](#supported-models)
+- [Install](#install)
+- [Quickstart](#quickstart)
+- [Commands](#commands)
+- [Global Flags](#global-flags)
+- [Updating](#updating)
+- [Uninstall](#uninstall)
+- [Troubleshooting](#troubleshooting)
+- [Support](#support)
+- [More Atlas Cloud Tools](#more-atlas-cloud-tools)
+- [License](#license)
+
 ## Install
 
 ### macOS / Linux
@@ -104,8 +118,10 @@ First time only — authenticate with your [API key](https://www.atlascloud.ai/c
 
 ```bash
 atlas auth login                               # interactive
-atlas auth login --token "$ATLAS_API_KEY"      # CI / non-interactive
+atlas auth login --token "$ATLASCLOUD_API_KEY" # CI / non-interactive
 ```
+
+Prefer environment variables? Copy [`.env.example`](.env.example) to `.env` and set `ATLASCLOUD_API_KEY`.
 
 More end-to-end scripts (minimal call → real-world scenario → multi-step pipeline) live in [`examples/`](examples/).
 
@@ -171,6 +187,7 @@ Bugs and feature requests: [GitHub Issues](https://github.com/AtlasCloudAI/cli/i
 
 ## More Atlas Cloud Tools
 
+- 🧰 **Want to use it from the terminal?** → [atlascloud-cli](https://github.com/AtlasCloudAI/cli)
 - 🤖 **Want to use it in Claude Code / Cursor?** → Install the [Atlas Cloud MCP Server](https://github.com/AtlasCloudAI/mcp-server)
 - 🎬 **Want it as a Claude Code / Codex / Gemini CLI Skill?** → Install [atlas-cloud-skills](https://github.com/AtlasCloudAI/atlas-cloud-skills)
 - 🎨 **ComfyUI nodes** → [atlascloud_comfyui](https://github.com/AtlasCloudAI/atlascloud_comfyui)
