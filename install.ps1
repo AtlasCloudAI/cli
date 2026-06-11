@@ -23,7 +23,7 @@ if ([string]::IsNullOrWhiteSpace($Version)) {
   try {
     $Version = Normalize-Version -RawVersion (Invoke-WebRequest -UseBasicParsing -Uri $VersionUrl).Content
   } catch {
-    throw "Could not resolve latest Atlas CLI version from ${VersionUrl}. Pass -Version 0.1.10 or set ATLAS_VERSION. $($_.Exception.Message)"
+    throw "Could not resolve latest Atlas CLI version from ${VersionUrl}. Pass -Version 0.1.14 or set ATLAS_VERSION. $($_.Exception.Message)"
   }
 } else {
   $Version = Normalize-Version -RawVersion $Version

@@ -16,6 +16,8 @@ The postinstall step downloads the prebuilt `atlas` binary for your platform fro
 atlas auth login
 atlas chat "explain UUID v7"
 atlas generate image google/nano-banana-2/text-to-image -p "a cat"
+atlas skills read atlas --json
+atlas skills list atlas/references --json
 atlas --help
 ```
 
