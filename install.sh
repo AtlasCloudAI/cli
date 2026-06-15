@@ -4,7 +4,7 @@
 # Usage:
 #   curl -fsSL https://raw.githubusercontent.com/AtlasCloudAI/cli/main/install.sh | sh
 #   ... | sh -s -- --prefix=$HOME/.local
-#   ... | sh -s -- --version=0.1.14
+#   ... | sh -s -- --version=0.1.15
 #
 # Telemetry (opt-in): set ATLAS_TELEMETRY=1 to send an anonymous install
 # ping (OS, arch, version) to api.atlascloud.ai/i/v1. Off by default.
@@ -50,14 +50,14 @@ resolve_version() {
   if [ -n "$raw_version" ]; then
     normalize_version "$raw_version" || {
       echo "Invalid version from $VERSION_URL: $raw_version" >&2
-      echo "Try passing --version=0.1.14 explicitly." >&2
+      echo "Try passing --version=0.1.15 explicitly." >&2
       exit 1
     }
     return
   fi
 
   echo "Could not resolve latest Atlas CLI version from $VERSION_URL." >&2
-  echo "Try passing --version=0.1.14 or setting ATLAS_VERSION." >&2
+  echo "Try passing --version=0.1.15 or setting ATLAS_VERSION." >&2
   exit 1
 }
 

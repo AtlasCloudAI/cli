@@ -1,6 +1,6 @@
 {
   "name": "atlascloud-cli",
-  "version": "0.1.14",
+  "version": "0.1.15",
   "description": "One command to generate AI images, videos & chat with 300+ models. GPT Image 2, Nano Banana 2/Pro, Kling 3, Seedance 2, Flux 2, Claude, GPT, DeepSeek API CLI.",
   "keywords": [
     "atlascloud",
