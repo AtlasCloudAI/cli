@@ -1,10 +1,43 @@
-# AtlasCloud CLI
+# Atlas Cloud CLI
 
-Call AtlasCloud LLM, image, and video models from your shell.
+> One command to call 300+ LLM, image, and video models from your shell. Cross-platform · MCP-ready.
 
-![AtlasCloud CLI demo](demo.gif)
+<p>
+  <a href="https://github.com/AtlasCloudAI/cli/releases"><img src="https://img.shields.io/github/v/release/AtlasCloudAI/cli?style=flat&colorA=18181B&colorB=28CF8D" alt="release" /></a>
+  <a href="https://www.npmjs.com/package/atlascloud-cli"><img src="https://img.shields.io/npm/dm/atlascloud-cli.svg?style=flat&colorA=18181B&colorB=28CF8D" alt="npm downloads" /></a>
+  <a href="https://github.com/AtlasCloudAI/cli/blob/main/LICENSE"><img src="https://img.shields.io/github/license/AtlasCloudAI/cli?style=flat&colorA=18181B&colorB=28CF8D" alt="license" /></a>
+  <a href="https://github.com/AtlasCloudAI/cli/stargazers"><img src="https://img.shields.io/github/stars/AtlasCloudAI/cli?style=flat&colorA=18181B&colorB=28CF8D" alt="stars" /></a>
+  <a href="https://github.com/AtlasCloudAI/cli/pulls"><img src="https://img.shields.io/badge/PRs-welcome-28CF8D.svg?style=flat&colorA=18181B" alt="PRs welcome" /></a>
+</p>
+
+![Atlas Cloud CLI demo](demo.gif)
+
+> **[→ Get your free Atlas Cloud API key](https://www.atlascloud.ai/console/api-keys?utm_source=github&utm_campaign=cli)** — 300+ models, one key, OpenAI-compatible.
 
 This repository hosts public installers, release artifacts, and lightweight package-manager wrappers for the `atlas` CLI. The Go source repository is maintained separately.
+
+## Supported Models
+
+- 🎬 **Video** — Seedance 2.0 · Kling 3 · Sora 2 · Veo 3.1 · HappyHorse 1 · Grok Imagine 1.5 · Wan 2.7
+- 🎨 **Image** — Nano Banana 2/Pro · GPT Image 2 · Flux 2 · Seedream 5
+- 💬 **LLM** — Claude · GPT · DeepSeek · MiniMax · Kimi · GLM · Qwen
+- 🔊 **Audio** — Grok TTS
+
+- 📚 **Explore more** — [300+ models »](https://www.atlascloud.ai/models?utm_source=github&utm_campaign=cli)
+
+## Contents
+
+- [Supported Models](#supported-models)
+- [Install](#install)
+- [Quickstart](#quickstart)
+- [Commands](#commands)
+- [Global Flags](#global-flags)
+- [Updating](#updating)
+- [Uninstall](#uninstall)
+- [Troubleshooting](#troubleshooting)
+- [Support](#support)
+- [More Atlas Cloud Tools](#more-atlas-cloud-tools)
+- [License](#license)
 
 ## Install
 
@@ -65,19 +98,32 @@ Download the archive for your OS and architecture from [Releases](https://github
 
 ## Quickstart
 
+Generate your first image, video, and chat completion — one line each:
+
 ```bash
-atlas auth login
+# Image
+atlas generate image google/nano-banana-2/text-to-image -p "a cat astronaut, studio lighting"
+
+# Video
+atlas generate video bytedance/seedance-2.0-fast/text-to-video -p "a paper plane gliding over a neon city at dusk"
+
+# Chat (LLM)
 atlas chat "explain UUID v7"
+
+# Browse the full catalog any time
 atlas models list
-atlas generate image google/nano-banana-2/text-to-image -p "a cat"
 ```
 
-For CI and non-interactive environments:
+First time only — authenticate with your [API key](https://www.atlascloud.ai/console/api-keys?utm_source=github&utm_campaign=cli):
 
 ```bash
-atlas auth login --token "$ATLAS_API_KEY"
-atlas chat "hi" --model deepseek-ai/DeepSeek-V3-0324
+atlas auth login                               # interactive
+atlas auth login --token "$ATLASCLOUD_API_KEY" # CI / non-interactive
 ```
+
+Prefer environment variables? Copy [`.env.example`](.env.example) to `.env` and set `ATLASCLOUD_API_KEY`.
+
+More end-to-end scripts (minimal call → real-world scenario → multi-step pipeline) live in [`examples/`](examples/).
 
 ## Commands
 
@@ -139,6 +185,18 @@ Installer checksum failure — do not run the downloaded archive. Retry the inst
 
 Bugs and feature requests: [GitHub Issues](https://github.com/AtlasCloudAI/cli/issues). Please include `atlas version`, your OS/arch, install method, and the exact command that failed.
 
+## More Atlas Cloud Tools
+
+- 🧰 **Want to use it from the terminal?** → [atlascloud-cli](https://github.com/AtlasCloudAI/cli)
+- 🤖 **Want to use it in Claude Code / Cursor?** → Install the [Atlas Cloud MCP Server](https://github.com/AtlasCloudAI/mcp-server)
+- 🎬 **Want it as a Claude Code / Codex / Gemini CLI Skill?** → Install [atlas-cloud-skills](https://github.com/AtlasCloudAI/atlas-cloud-skills)
+- 🎨 **ComfyUI nodes** → [atlascloud_comfyui](https://github.com/AtlasCloudAI/atlascloud_comfyui)
+- 🔁 **n8n nodes** → [n8n-nodes-atlascloud](https://github.com/AtlasCloudAI/n8n-nodes-atlascloud)
+- 💬 **Join our Discord** → [discord.gg/MWmMr4q9es](https://discord.gg/MWmMr4q9es)
+- 🌐 **Website** → [atlascloud.ai](https://www.atlascloud.ai?utm_source=github&utm_campaign=cli)
+
 ## License
 
 MIT
+
+<!-- TODO(hero): add a terminal recording or screenshot showing atlas CLI generating an image or video. -->
