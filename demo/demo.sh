@@ -30,16 +30,16 @@ run_cmd() {
 
 clear
 printf "\033[1;37mAtlasCloud CLI\033[0m\n"
-printf "Call LLM, image, and video models from your shell.\n\n"
+printf "Call Atlas Cloud LLM, image, video, and audio APIs from your shell.\n\n"
 pause 0.8
 
 run_cmd "atlas version" atlas version
-run_cmd "atlas --help" atlas --help
+run_cmd "atlas models --help" atlas models --help
 run_cmd "atlas generate image --help" sh -c 'atlas generate image --help | sed -n "1,28p"'
 
-type_line 'atlas generate image google/nano-banana-2/text-to-image -p "a cat"'
+type_line 'atlas generate image google/nano-banana-2/text-to-image -p "..." --no-wait --json'
 printf "\033[2m# Authenticate once with: atlas auth login\033[0m\n"
-printf "\033[2m# Then run generation commands with --wait or --no-wait.\033[0m\n\n"
+printf "\033[2m# Use models list/get and generate cost before billable calls.\033[0m\n\n"
 pause 1.0
 
 printf "\033[1;32mReady:\033[0m curl -fsSL https://raw.githubusercontent.com/AtlasCloudAI/cli/main/install.sh | sh\n"

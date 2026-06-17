@@ -1,12 +1,20 @@
 #!/usr/bin/env bash
-# 01 — Minimal call: one chat completion + one image.
+# 01 — Discovery-first call: inspect the API surface, then make one chat call.
 # Prerequisite: `atlas auth login` (once). See examples/README.md.
 set -euo pipefail
 
-echo "== Chat =="
-atlas chat "Give me three taglines for a productivity app. One line each."
+echo "== Auth status =="
+atlas auth status
 
 echo
-echo "== Image =="
-atlas generate image google/nano-banana-2/text-to-image \
-  -p "a minimalist productivity app icon, soft gradient, rounded square, 3D"
+echo "== Catalog sample =="
+atlas models list --type chat --json
+
+echo
+echo "== Model schema =="
+atlas models get deepseek-ai/DeepSeek-V3-0324 --json
+
+echo
+echo "== Chat API call =="
+atlas chat --model deepseek-ai/DeepSeek-V3-0324 \
+  "Return only a JSON object with status=ok and source=atlas-cli"

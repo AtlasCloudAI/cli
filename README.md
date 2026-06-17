@@ -1,6 +1,6 @@
 # Atlas Cloud CLI
 
-> One command to call 300+ LLM, image, and video models from your shell. Cross-platform · MCP-ready.
+> Call Atlas Cloud LLM, image, video, and audio APIs from your shell, scripts, and CI jobs.
 
 <p>
   <a href="https://github.com/AtlasCloudAI/cli/releases"><img src="https://img.shields.io/github/v/release/AtlasCloudAI/cli?style=flat&colorA=18181B&colorB=28CF8D" alt="release" /></a>
@@ -9,8 +9,6 @@
   <a href="https://github.com/AtlasCloudAI/cli/stargazers"><img src="https://img.shields.io/github/stars/AtlasCloudAI/cli?style=flat&colorA=18181B&colorB=28CF8D" alt="stars" /></a>
   <a href="https://github.com/AtlasCloudAI/cli/pulls"><img src="https://img.shields.io/badge/PRs-welcome-28CF8D.svg?style=flat&colorA=18181B" alt="PRs welcome" /></a>
 </p>
-
-![Atlas Cloud CLI demo](demo.gif)
 
 > **[→ Get your free Atlas Cloud API key](https://www.atlascloud.ai/console/api-keys?utm_source=github&utm_campaign=cli)** — 300+ models, one key, OpenAI-compatible.
 
@@ -25,11 +23,14 @@ This repository hosts public installers, release artifacts, and lightweight pack
 
 - 📚 **Explore more** — [300+ models »](https://www.atlascloud.ai/models?utm_source=github&utm_campaign=cli)
 
+Availability, parameters, and pricing vary by model. Use `atlas models get` and
+`atlas generate cost` against the live catalog before automating billable calls.
+
 ## Contents
 
 - [Supported Models](#supported-models)
 - [Install](#install)
-- [Quickstart](#quickstart)
+- [API caller workflows](#api-caller-workflows)
 - [Commands](#commands)
 - [Global Flags](#global-flags)
 - [Updating](#updating)
@@ -96,34 +97,61 @@ The npm package is a thin wrapper. Its postinstall script downloads the matching
 
 Download the archive for your OS and architecture from [Releases](https://github.com/AtlasCloudAI/cli/releases), extract it, and place the binaries in your `PATH`.
 
-## Quickstart
+## API caller workflows
 
-Generate your first image, video, and chat completion — one line each:
-
-```bash
-# Image
-atlas generate image google/nano-banana-2/text-to-image -p "a cat astronaut, studio lighting"
-
-# Video
-atlas generate video bytedance/seedance-2.0-fast/text-to-video -p "a paper plane gliding over a neon city at dusk"
-
-# Chat (LLM)
-atlas chat "explain UUID v7"
-
-# Browse the full catalog any time
-atlas models list
-```
-
-First time only — authenticate with your [API key](https://www.atlascloud.ai/console/api-keys?utm_source=github&utm_campaign=cli):
+Authenticate once, then choose the command path that matches the API call you
+want to make. Discovery and cost commands are safe to run before starting a
+billable generation.
 
 ```bash
 atlas auth login                               # interactive
 atlas auth login --token "$ATLASCLOUD_API_KEY" # CI / non-interactive
+atlas auth status
+```
+
+| Job | Command pattern | Notes |
+|---|---|---|
+| Discover available models | `atlas models list --type video --json` | Replace `video` with `chat` or `image`; avoid hard-coding stale model IDs. |
+| Inspect model parameters | `atlas models get MODEL_ID --json` | Read required fields, defaults, and vendor-specific parameter names. |
+| Estimate generation cost | `atlas generate cost video MODEL_ID ... --json` | Use `cost image` or `cost video`; calls the pricing endpoint only. |
+| Call a chat or multimodal model | `atlas chat --model MODEL_ID "prompt"` | Supports text plus `--image`, `--video`, and `--audio` for capable models. |
+| Start an image/video job | `atlas generate image MODEL_ID ...` | Use `generate image` or `generate video`; add `--no-wait --json` for async scripts. |
+| Continue an async job | `atlas generate get PREDICTION_ID` / `atlas generate wait PREDICTION_ID` | Poll status or wait until completion. |
+| Script and CI usage | `atlas --json ... \| jq ...` | Non-TTY output is JSON by default; `--json` makes it explicit. |
+
+### Explore without model calls
+
+```bash
+atlas models list --type video --json | jq -r '.models[].id'
+atlas models search seedance --type video --json
+atlas models get bytedance/seedance-2.0-fast/text-to-video --json
+```
+
+### Estimate cost before generation
+
+```bash
+atlas generate cost video bytedance/seedance-2.0-fast/text-to-video \
+  -p "A product shot slowly rotates on a clean white background" \
+  --duration 5 \
+  --resolution 720p \
+  --param generate_audio=false \
+  --json
+```
+
+### Make API calls
+
+```bash
+atlas chat --model deepseek-ai/DeepSeek-V3-0324 "Return only a JSON object with status=ok"
+
+PRED=$(atlas generate image google/nano-banana-2/text-to-image \
+  -p "minimal product photo on a white background" \
+  --no-wait --json | jq -r '.id')
+atlas generate wait "$PRED"
 ```
 
 Prefer environment variables? Copy [`.env.example`](.env.example) to `.env` and set `ATLASCLOUD_API_KEY`.
 
-More end-to-end scripts (minimal call → real-world scenario → multi-step pipeline) live in [`examples/`](examples/).
+More API caller scripts (discovery-first call → cost-aware generation → scripted pipeline) live in [`examples/`](examples/).
 
 ## Commands
 
@@ -133,7 +161,7 @@ More end-to-end scripts (minimal call → real-world scenario → multi-step pip
 | `atlas chat` | Send a chat completion request |
 | `atlas models` | List and inspect available models |
 | `atlas generate` | Generate images and videos, poll job status |
-| `atlas account` | Upcoming: account and billing endpoints are not available yet |
+| `atlas account` | Manage account selection |
 | `atlas version` | Print build information |
 
 Run `atlas --help` or `atlas <command> --help` for full flag reference.

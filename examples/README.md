@@ -1,18 +1,19 @@
 # Atlas Cloud CLI — Examples
 
-Three layered, copy-pasteable scripts. Each is self-contained and uses only
-documented `atlas` commands (`auth`, `chat`, `models`, `generate`).
+Three layered, copy-pasteable API caller workflows. Each is self-contained and
+uses documented `atlas` commands (`auth`, `models`, `generate`, `chat`).
 
 | Script | Layer | What it shows |
 |---|---|---|
-| [`01-minimal.sh`](01-minimal.sh) | Minimal call | The smallest possible chat + image generation. |
-| [`02-product-shot.sh`](02-product-shot.sh) | Real-world scenario | E-commerce: generate a product hero image, then write its marketing copy with an LLM. |
-| [`03-pipeline.sh`](03-pipeline.sh) | Pipeline | Idea → LLM storyboard → image **and** video, chained end-to-end. |
+| [`01-minimal.sh`](01-minimal.sh) | Discovery-first call | Check auth, list model catalog entries, inspect a schema, then make one chat call. |
+| [`02-product-shot.sh`](02-product-shot.sh) | Cost-aware generation | Estimate an image request, then start an async product hero image job. |
+| [`03-pipeline.sh`](03-pipeline.sh) | Scripted pipeline | Idea → LLM prompts → cost checks → async image and video jobs. |
 
 ## Prerequisites
 
 1. Install the CLI — see the [root README](../README.md#install).
-2. Authenticate once:
+2. Install `jq` if you want to run the JSON automation examples unchanged.
+3. Authenticate once:
 
    ```bash
    atlas auth login                              # interactive
