@@ -1,6 +1,6 @@
 # Atlas Cloud CLI — Examples
 
-Three layered, copy-pasteable API caller workflows. Each is self-contained and
+Four layered, copy-pasteable API caller workflows. Each is self-contained and
 uses documented `atlas` commands (`auth`, `models`, `generate`, `chat`).
 
 | Script | Layer | What it shows |
@@ -8,6 +8,7 @@ uses documented `atlas` commands (`auth`, `models`, `generate`, `chat`).
 | [`01-minimal.sh`](01-minimal.sh) | Discovery-first call | Check auth, list model catalog entries, inspect a schema, then make one chat call. |
 | [`02-product-shot.sh`](02-product-shot.sh) | Cost-aware generation | Estimate an image request, then start an async product hero image job. |
 | [`03-pipeline.sh`](03-pipeline.sh) | Scripted pipeline | Idea → LLM prompts → cost checks → async image and video jobs. |
+| [`04-ci-json.sh`](04-ci-json.sh) | CI JSON job | Authenticate from `ATLASCLOUD_API_KEY`, isolate credentials, validate a model, then emit JSON. |
 
 ## Prerequisites
 
@@ -27,4 +28,10 @@ uses documented `atlas` commands (`auth`, `models`, `generate`, `chat`).
 ```bash
 chmod +x examples/*.sh
 ./examples/01-minimal.sh
+```
+
+For CI:
+
+```bash
+ATLASCLOUD_API_KEY=... ./examples/04-ci-json.sh
 ```

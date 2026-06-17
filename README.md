@@ -31,6 +31,7 @@ Availability, parameters, and pricing vary by model. Use `atlas models get` and
 - [Supported Models](#supported-models)
 - [Install](#install)
 - [API caller workflows](#api-caller-workflows)
+- [Guides](#guides)
 - [Commands](#commands)
 - [Global Flags](#global-flags)
 - [Updating](#updating)
@@ -151,7 +152,11 @@ atlas generate wait "$PRED"
 
 Prefer environment variables? Copy [`.env.example`](.env.example) to `.env` and set `ATLASCLOUD_API_KEY`.
 
-More API caller scripts (discovery-first call → cost-aware generation → scripted pipeline) live in [`examples/`](examples/).
+More API caller scripts (discovery-first call → cost-aware generation → scripted pipeline → CI JSON job) live in [`examples/`](examples/).
+
+## Guides
+
+- [API caller workflows](docs/api-caller-workflows.md) — how to use Atlas CLI as a shell-first API client in local scripts, CI jobs, and backend automation.
 
 ## Commands
 
