@@ -1,6 +1,6 @@
 # atlascloud-cli
 
-AtlasCloud CLI — call Atlas Cloud LLM, image, video, and audio APIs from your terminal, scripts, and CI jobs.
+AtlasCloud CLI — call Atlas Cloud LLM, image, and video APIs from your terminal, scripts, and CI jobs (audio/video inputs supported in multimodal chat).
 
 ## Install
 
