@@ -21,9 +21,9 @@ This repository hosts public installers, release artifacts, and lightweight pack
 - 🎬 **Video** (186) — Seedance 2.5 · MiniMax H3 · Youchuan V8.2 · Wan 2.7 Spicy · Seedance 2.0 Mini · HappyHorse-1.1
 - 🎨 **Image** (117) — Seedream v5.0 Pro · Qwen Image 3.0 · Reve 2.1 · Youchuan V8.2
 - 🧊 **3D** (7) — Seed3D 2.0 · Hunyuan 3D Rapid · Hunyuan 3D Pro · Tripo H3.1
-- 💬 **LLM** (62) — DeepSeek V4 Flash 0731 · Qwen3.8 Max · Kimi K3 · Grok 4.5
+- 💬 **LLM** (63) — Grok 4.6 · DeepSeek V4 Flash 0731 · Qwen3.8 Max · Kimi K3
 
-- 📚 **Explore more** — [all 407 live models »](https://www.atlascloud.ai/models?utm_source=github&utm_campaign=cli)
+- 📚 **Explore more** — [all 408 live models »](https://www.atlascloud.ai/models?utm_source=github&utm_campaign=cli)
 <!-- ATLAS-MODELS:END -->
 
 > ℹ️ **Audio**: the CLI accepts audio as *input* for multimodal chat (`atlas chat --audio @file.mp3`, e.g. transcription with `qwen/qwen3-vl-8b-instruct`). Audio *generation* (TTS / music) and dedicated 3D/audio subcommands are not in the CLI yet — track [#3](https://github.com/AtlasCloudAI/cli/issues/3) or use the [MCP server](https://github.com/AtlasCloudAI/mcp-server) / [REST API](https://www.atlascloud.ai/docs) meanwhile.
