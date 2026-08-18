@@ -26,7 +26,7 @@ This repository hosts public installers, release artifacts, and lightweight pack
 - 📚 **Explore more** — [all 396 live models »](https://www.atlascloud.ai/models?utm_source=github&utm_campaign=cli)
 <!-- ATLAS-MODELS:END -->
 
-> 🔜 **Next up** — Kling 4.0 · Wan 3.0. On their way to Atlas Cloud; not callable yet. Today's newest video models are Seedance 2.5, Kling 3 / Video O3 and Wan 2.7.
+> 🎬 **Newest video models** — Seedance 2.5 · Kling 4.0 · Wan 3.0 · Kling Video O3.
 
 
 > ℹ️ **Audio**: the CLI accepts audio as *input* for multimodal chat (`atlas chat --audio @file.mp3`, e.g. transcription with `qwen/qwen3-vl-8b-instruct`). Audio *generation* (TTS / music) and dedicated 3D/audio subcommands are not in the CLI yet — track [#3](https://github.com/AtlasCloudAI/cli/issues/3) or use the [MCP server](https://github.com/AtlasCloudAI/mcp-server) / [REST API](https://www.atlascloud.ai/docs) meanwhile.
