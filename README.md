@@ -130,13 +130,13 @@ atlas auth status
 ```bash
 atlas models list --type video --json | jq -r '.models[].id'
 atlas models search seedance --type video --json
-atlas models get bytedance/seedance-2.0-fast/text-to-video --json
+atlas models get bytedance/seedance-2.5/text-to-video --json
 ```
 
 ### Estimate cost before generation
 
 ```bash
-atlas generate cost video bytedance/seedance-2.0-fast/text-to-video \
+atlas generate cost video bytedance/seedance-2.5/text-to-video \
   -p "A product shot slowly rotates on a clean white background" \
   --duration 5 \
   --resolution 720p \
