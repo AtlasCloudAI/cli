@@ -23,7 +23,7 @@ This repository hosts public installers, release artifacts, and lightweight pack
 - 🧊 **3D** (7) — Seed3D 2.0 · Hunyuan 3D Rapid · Hunyuan 3D Pro · Tripo H3.1
 - 💬 **LLM** (65) — Grok 4.6 · DeepSeek V4 Flash 0731 · Qwen3.8 Max · Kimi K3
 
-- 📚 **Explore more** — [all 398 live models »](https://www.atlascloud.ai/models?utm_source=github&utm_campaign=cli)
+- 📚 **Explore more** — [all 400 live models »](https://www.atlascloud.ai/models?utm_source=github&utm_campaign=cli)
 <!-- ATLAS-MODELS:END -->
 
 > 🎬 **Newest video models** — Seedance 2.5 · Kling 4.0 · Wan 3.0 · Kling Video O3.
