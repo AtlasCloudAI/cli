@@ -12,7 +12,7 @@
 set -e
 
 REPO="${ATLAS_RELEASE_REPO:-AtlasCloudAI/cli}"
-PREFIX="/usr/local"
+PREFIX="$HOME/.local"
 VERSION="${ATLAS_VERSION:-}"
 VERSION_URL="${ATLAS_VERSION_URL:-https://raw.githubusercontent.com/$REPO/main/VERSION}"
 
@@ -117,6 +117,8 @@ BIN_DIR="$PREFIX/bin"
 run() { if [ -w "$BIN_DIR" ]; then "$@"; else sudo "$@"; fi; }
 
 run install -m 0755 "$TMPDIR/atlas" "$BIN_DIR/atlas"
+printf 'native\n' > "$TMPDIR/atlas.install"
+run install -m 0644 "$TMPDIR/atlas.install" "$BIN_DIR/atlas.install"
 # macOS: strip quarantine xattr so Gatekeeper does not block exec.
 [ "$OS" = "darwin" ] && run xattr -d com.apple.quarantine "$BIN_DIR/atlas" 2>/dev/null || true
 
@@ -136,3 +138,17 @@ echo "  $(ATLAS_TELEMETRY=0 "$BIN_DIR/atlas" version 2>/dev/null || echo atlas)"
 
 echo ""
 echo "Next: atlas auth login"
+if [ -w "$BIN_DIR" ]; then
+  echo "Automatic updates are enabled for official native installations. Set ATLAS_AUTO_UPDATE=0 to disable."
+else
+  echo "Automatic updates are unavailable: $BIN_DIR is not writable by this user."
+fi
+case ":$PATH:" in
+  *":$BIN_DIR:"*) ;;
+  *) echo "Add $BIN_DIR to your PATH before running atlas." ;;
+esac
+active_atlas="$(command -v atlas || true)"
+if [ -n "$active_atlas" ] && [ "$active_atlas" != "$BIN_DIR/atlas" ]; then
+  echo "Another atlas is first on PATH: $active_atlas"
+  echo "Put $BIN_DIR before that directory on PATH to use this installation."
+fi

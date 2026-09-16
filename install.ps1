@@ -128,6 +128,7 @@ try {
 
   $Target = Join-Path $InstallDir "atlas.exe"
   Copy-Item -LiteralPath $Binary.FullName -Destination $Target -Force
+  [System.IO.File]::WriteAllText("$Target.install", "native`n")
 
   $PathChanged = $false
   if (-not $NoPath -and $env:ATLAS_NO_PATH -ne "1") {
@@ -153,6 +154,12 @@ try {
   }
   Write-Host ""
   Write-Host "Next: atlas auth login"
+  Write-Host "Automatic updates are enabled. Set ATLAS_AUTO_UPDATE=0 to disable."
+  $ActiveAtlas = Get-Command atlas -ErrorAction SilentlyContinue
+  if ($ActiveAtlas -and $ActiveAtlas.Source -ne $Target) {
+    Write-Host "Another atlas is first on PATH: $($ActiveAtlas.Source)"
+    Write-Host "Put $InstallDir before that directory on PATH to use this installation."
+  }
 } finally {
   if (Test-Path -LiteralPath $TempDir) {
     Remove-Item -LiteralPath $TempDir -Recurse -Force -ErrorAction SilentlyContinue
