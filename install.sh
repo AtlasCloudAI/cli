@@ -6,8 +6,8 @@
 #   ... | sh -s -- --prefix=$HOME/.local
 #   ... | sh -s -- --version=0.1.15
 #
-# Telemetry (opt-in): set ATLAS_TELEMETRY=1 to send an anonymous install
-# ping (OS, arch, version) to api.atlascloud.ai/i/v1. Off by default.
+# Telemetry is on by default. Set ATLAS_TELEMETRY=0 to skip the anonymous
+# install ping (OS, arch, version) to api.atlascloud.ai/i/v1.
 
 set -e
 
@@ -120,17 +120,19 @@ run install -m 0755 "$TMPDIR/atlas" "$BIN_DIR/atlas"
 # macOS: strip quarantine xattr so Gatekeeper does not block exec.
 [ "$OS" = "darwin" ] && run xattr -d com.apple.quarantine "$BIN_DIR/atlas" 2>/dev/null || true
 
-# 5. Anonymous install ping — OPT-IN. Default: off.
-# Set ATLAS_TELEMETRY=1 if you want to help upstream see how many people
-# install, on which platform/version.
-if [ "$ATLAS_TELEMETRY" = "1" ]; then
-  curl -fsSL "https://api.atlascloud.ai/i/v1?os=$OS&arch=$ARCH&version=$VER&products=atlas&channel=installsh" \
-    >/dev/null 2>&1 || true
-fi
+# 5. Anonymous install ping — on unless ATLAS_TELEMETRY=0/false/no/off.
+telemetry_off="$(printf '%s' "${ATLAS_TELEMETRY-}" | tr '[:upper:]' '[:lower:]' | tr -d '[:space:]')"
+case "$telemetry_off" in
+  0|false|no|off) ;;
+  *)
+    curl -fsSL --max-time 2 "https://api.atlascloud.ai/i/v1?os=$OS&arch=$ARCH&version=$VER&products=atlas&channel=installsh" \
+      >/dev/null 2>&1 || true
+    ;;
+esac
 
 echo ""
 echo "Installed: atlas"
-echo "  $($BIN_DIR/atlas version 2>/dev/null || echo atlas)"
+echo "  $(ATLAS_TELEMETRY=0 "$BIN_DIR/atlas" version 2>/dev/null || echo atlas)"
 
 echo ""
 echo "Next: atlas auth login"

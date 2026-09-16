@@ -134,12 +134,13 @@ try {
     $PathChanged = Add-ToUserPath -Directory $InstallDir
   }
 
-  if ($env:ATLAS_TELEMETRY -eq "1") {
+  $telemetry = "$($env:ATLAS_TELEMETRY)".Trim().ToLower()
+  if ($telemetry -notin @("0", "false", "no", "off")) {
     $TelemetryUrl = "https://api.atlascloud.ai/i/v1?os=windows&arch=$Arch&version=$Version&products=atlas&channel=installps1"
     try {
-      Invoke-WebRequest -UseBasicParsing -Uri $TelemetryUrl | Out-Null
+      Invoke-WebRequest -UseBasicParsing -TimeoutSec 2 -Uri $TelemetryUrl | Out-Null
     } catch {
-      # Telemetry is opt-in and must never make installation fail.
+      # Telemetry must never make installation fail.
     }
   }
 
