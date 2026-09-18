@@ -12,6 +12,26 @@ The postinstall step downloads the prebuilt `atlas` binary for your platform fro
 
 ## Usage
 
+### Use Atlas with your coding agent
+
+```sh
+atlas auth status --json
+atlas auth login                    # only if not already logged in
+atlas skills install --agent claude # or: --agent codex
+```
+
+Start a new agent session and ask: "Use Atlas to create a product photo from
+this reference. Preserve the logo and estimate the cost first."
+The installed entry reads the task guide from your CLI, so detailed instructions
+stay aligned with the installed version. Existing custom skills are preserved.
+For project skills use `atlas skills install --dir .claude/skills`.
+
+[Agent setup, examples and MCP support](https://github.com/AtlasCloudAI/cli/blob/main/docs/AGENT_QUICKSTART.md).
+This package includes `atlas` only; the experimental local stdio MCP server
+requires a separate source build. No public remote MCP endpoint is provided.
+
+### Use Atlas directly
+
 Authenticate once, then choose the command path for the API task:
 
 ```bash

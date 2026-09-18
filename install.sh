@@ -138,6 +138,8 @@ echo "  $(ATLAS_TELEMETRY=0 "$BIN_DIR/atlas" version 2>/dev/null || echo atlas)"
 
 echo ""
 echo "Next: atlas auth login"
+echo "Using Claude Code or Codex? Run atlas skills install --agent claude (or --agent codex)."
+echo "Then start a new agent session and ask Atlas to create an image or video."
 if [ -w "$BIN_DIR" ]; then
   echo "Automatic updates are enabled for official native installations. Set ATLAS_AUTO_UPDATE=0 to disable."
 else

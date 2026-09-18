@@ -154,6 +154,8 @@ try {
   }
   Write-Host ""
   Write-Host "Next: atlas auth login"
+  Write-Host "Using Claude Code or Codex? Run atlas skills install --agent claude (or --agent codex)."
+  Write-Host "Then start a new agent session and ask Atlas to create an image or video."
   Write-Host "Automatic updates are enabled. Set ATLAS_AUTO_UPDATE=0 to disable."
   $ActiveAtlas = Get-Command atlas -ErrorAction SilentlyContinue
   if ($ActiveAtlas -and $ActiveAtlas.Source -ne $Target) {
