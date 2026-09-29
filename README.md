@@ -190,6 +190,8 @@ Run `atlas --help` or `atlas <command> --help` for full flag reference.
 
 ## Updating
 
+See the [changelog](CHANGELOG.md) for changes in every public release.
+
 ```bash
 # curl installer
 curl -fsSL https://raw.githubusercontent.com/AtlasCloudAI/cli/main/install.sh | sh
