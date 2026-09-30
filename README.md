@@ -1,6 +1,6 @@
 # Atlas Cloud CLI
 
-> Call Atlas Cloud LLM, image, and video APIs from your shell, scripts, and CI jobs — with image/video/audio inputs for multimodal chat.
+> Call Atlas Cloud LLM, image, video, audio, and 3D APIs from your shell, scripts, and CI jobs — with image/video/audio inputs for multimodal chat.
 
 <p>
   <a href="https://github.com/AtlasCloudAI/cli/releases"><img src="https://img.shields.io/github/v/release/AtlasCloudAI/cli?style=flat&colorA=18181B&colorB=28CF8D" alt="release" /></a>
@@ -13,6 +13,8 @@
 > **[→ Get your free Atlas Cloud API key](https://www.atlascloud.ai/console/api-keys?utm_source=github&utm_campaign=cli)** — 300+ models, one key, OpenAI-compatible.
 
 This repository hosts public installers, release artifacts, and lightweight package-manager wrappers for the `atlas` CLI. The Go source repository is maintained separately.
+
+[Install](#install) · [Quick start and API workflows](#api-caller-workflows) · [CLI documentation](https://www.atlascloud.ai/docs/cli) · [Releases](https://github.com/AtlasCloudAI/cli/releases)
 
 ## Supported Models
 
@@ -29,7 +31,7 @@ This repository hosts public installers, release artifacts, and lightweight pack
 > 🎬 **Newest video models** — Seedance 2.5 · Kling 4.0 · Wan 3.0 · Kling Video O3.
 
 
-> ℹ️ **Audio**: the CLI accepts audio as *input* for multimodal chat (`atlas chat --audio @file.mp3`, e.g. transcription with `qwen/qwen3-vl-8b-instruct`). Audio *generation* (TTS / music) and dedicated 3D/audio subcommands are not in the CLI yet — track [#3](https://github.com/AtlasCloudAI/cli/issues/3) or use the [MCP server](https://github.com/AtlasCloudAI/mcp-server) / [REST API](https://www.atlascloud.ai/docs) meanwhile.
+> ℹ️ **Audio and 3D**: current releases provide `atlas generate audio` and `atlas generate 3d`. Both require the selected model and schema to be exposed in your account catalog; unsupported routes stop before submission. The CLI also accepts audio as input for multimodal chat (`atlas chat --audio @file.mp3`). See the [npm usage guide](npm/README.md#use-atlas-directly) and [release history](CHANGELOG.md) for the supported workflows.
 
 Availability, parameters, and pricing vary by model. Use `atlas models get` and
 `atlas generate cost` against the live catalog before automating billable calls.
