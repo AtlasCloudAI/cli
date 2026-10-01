@@ -224,6 +224,8 @@ npm uninstall -g atlascloud-cli
 
 `Unknown model` — run `atlas models list` or `atlas models search <keyword>`.
 
+Wait timed out or the terminal closed after submission — reuse the prediction ID with `atlas generate get` or `atlas generate wait` before submitting another job. See [async recovery and automation questions](docs/api-caller-workflows.md#6-recover-after-an-interrupted-wait).
+
 Installer checksum failure — do not run the downloaded archive. Retry the install or open an issue with the exact URL and version.
 
 ## Support

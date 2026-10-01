@@ -102,3 +102,47 @@ Runnable examples are in [`../examples`](../examples):
 - [`02-product-shot.sh`](../examples/02-product-shot.sh) - cost-aware image generation.
 - [`03-pipeline.sh`](../examples/03-pipeline.sh) - LLM prompt expansion plus image/video jobs.
 - [`04-ci-json.sh`](../examples/04-ci-json.sh) - non-interactive CI JSON call.
+
+## 6. Recover after an interrupted wait
+
+Keep the prediction ID returned by a successful submission. If the terminal
+closes or the local wait times out, inspect that same job before creating
+another generation:
+
+```bash
+atlas generate get "$PREDICTION_ID" --json --no-download
+atlas generate wait "$PREDICTION_ID" --timeout 10m --json --no-download
+```
+
+`get` inspects the existing prediction; `wait` is an alias for `get --wait`.
+`--timeout` limits how long this CLI invocation waits. A local timeout alone
+does not establish that the remote prediction failed or was cancelled. Reusing
+the ID avoids submitting another job merely to check the first one.
+
+Once the existing prediction completes, retrieve its output to an explicit path:
+
+```bash
+atlas generate get "$PREDICTION_ID" --wait --output ./result.mp4
+```
+
+Choose an output path appropriate for the generated media. `--no-download`
+keeps the command focused on status/response handling; omit it when requesting
+a download. Use `--overwrite` only when intentionally replacing an existing
+local file. Check the exit status and returned response before the next pipeline
+step. If submission failed before you received an ID, this recovery path cannot
+identify a job on its own; inspect the original error and account state before
+retrying.
+
+### Common automation questions
+
+- **Why is a model in the catalog but generation stops before submission?**
+  The command needs the corresponding generation route and schema for the
+  selected model. Inspect `atlas models get MODEL_ID --json` and the installed
+  version's command help; catalog membership alone is not a route guarantee.
+- **Does `generate cost` create a job?** It calls the pricing endpoint. It is an
+  estimate for the chosen inputs; creating a prediction is a separate command.
+- **Which version should a bug report describe?** Record `atlas version`, the
+  installation method and exact command. The npm package wraps a prebuilt CLI;
+  this distribution repository does not contain the Go source or an SDK.
+
+[Back to installation and support](../README.md) · [Release changes](../CHANGELOG.md)
