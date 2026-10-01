@@ -68,7 +68,7 @@ INSTALLER=https://raw.githubusercontent.com/AtlasCloudAI/cli/main/install.sh
 curl -fsSL "$INSTALLER" | sh -s -- --prefix="$HOME/.local"
 ```
 
-The installer always uses the latest GitHub Release, downloads the matching archive, and verifies it against `checksums.txt`.
+The shell installer resolves the version from the repository's [`VERSION`](VERSION) file unless you set `ATLAS_VERSION` or pass `--version`. It downloads that version's matching GitHub Release archive and verifies it against `checksums.txt`.
 
 ### Windows
 
@@ -86,7 +86,7 @@ $env:ATLAS_INSTALL_DIR="$HOME\bin"; irm https://raw.githubusercontent.com/AtlasC
 $env:ATLAS_NO_PATH="1"; irm https://raw.githubusercontent.com/AtlasCloudAI/cli/main/install.ps1 | iex
 ```
 
-The Windows installer always uses the latest GitHub Release, downloads the matching `windows_amd64` or `windows_arm64` zip, verifies it against `checksums.txt`, installs `atlas.exe`, and adds the install directory to the user PATH by default.
+The Windows installer resolves the version from the repository's [`VERSION`](VERSION) file unless you set `ATLAS_VERSION` or pass `-Version`. It downloads that version's matching `windows_amd64` or `windows_arm64` zip, verifies it against `checksums.txt`, installs `atlas.exe`, and adds the install directory to the user PATH by default.
 
 ### Homebrew
 
