@@ -1,148 +1,134 @@
-# API Caller Workflows
+# Scripts and CI with Atlas CLI
 
-Atlas CLI is useful when you want API calls from shell scripts, backend jobs, CI,
-or human-operated terminals without writing a small SDK wrapper first. This
-guide focuses on repeatable command patterns, JSON output, and safe discovery
-before billable calls.
+Examples in this guide target the current public release, **v0.1.36**. Check
+`atlas version` before using JSON paths in automation. Model inputs and pricing
+come from the live catalog; generation calls are billable.
 
-## 1. Authenticate for the environment
+## Authenticate
 
-For a developer machine, use the interactive login:
+For a developer machine, run `atlas auth login` once, then use
+`atlas auth ensure --non-interactive --json` to check and refresh the existing
+session. `auth status` only reads local credentials.
 
-```bash
-atlas auth login
-atlas auth status
+For CI, inject `ATLASCLOUD_API_KEY` through the runner's secret store. Isolate
+credentials with `ATLAS_TOKEN_FILE`, which works across supported platforms:
+
+```sh
+export ATLAS_TOKEN_FILE="${RUNNER_TEMP:-/tmp}/atlas-cli-token.json"
+atlas auth login --token "$ATLASCLOUD_API_KEY" --json >/dev/null
 ```
 
-For CI or a service job, pass an API key explicitly:
+Remove that file when the job ends. The complete [CI example](../examples/04-ci-json.sh)
+uses a temporary directory and an exit trap. `XDG_CONFIG_HOME` controls the Linux
+fallback location; it does not isolate the macOS or Windows credential store.
+The CLI does not automatically load `.env`: exporting a variable alone is also
+insufficient without the explicit `auth login --token` command.
 
-```bash
-export ATLASCLOUD_API_KEY="..."
-atlas auth login --token "$ATLASCLOUD_API_KEY" --json
-```
+## Discover and estimate
 
-In ephemeral runners, isolate credentials so the job does not depend on a
-cached login:
-
-```bash
-export XDG_CONFIG_HOME="${RUNNER_TEMP:-/tmp}/atlas-cli-config"
-atlas auth login --token "$ATLASCLOUD_API_KEY" --json
-```
-
-## 2. Discover models instead of hard-coding them
-
-Model availability, input fields, and pricing can change. Use the live catalog
-before wiring a model into an automation path.
-
-```bash
-atlas models list --type chat --json | jq -r '.models[].id'
+```sh
 atlas models list --type image --json | jq -r '.models[].id'
-atlas models list --type video --json | jq -r '.models[].id'
-
 atlas models search seedance --type video --json
-atlas models get bytedance/seedance-2.5/text-to-video --json
-```
-
-## 3. Estimate cost before generation
-
-Cost checks call the pricing endpoint. They are the right preflight for CI,
-batch generation, and user-facing tools that need budget controls.
-
-```bash
+atlas models get google/nano-banana-2/text-to-image --json
 atlas generate cost image google/nano-banana-2/text-to-image \
-  -p "minimal product photo on a white background" \
-  --json
-
-atlas generate cost video bytedance/seedance-2.5/text-to-video \
-  -p "A product shot slowly rotates on a clean white background" \
-  --duration 5 \
-  --resolution 720p \
-  --param generate_audio=false \
-  --json
+  -p "A matte black water bottle on a beige pedestal, studio lighting" --json
 ```
 
-## 4. Use JSON for scripts and CI
+Cost checks do not submit a generation or upload local files. For media URL inputs,
+use an existing HTTP(S) URL. `--explain` prints compiled input without submission
+or upload. See [complete media inputs](MEDIA_EXAMPLES.md) for other types.
 
-Use `--json` whenever another process consumes the output. Extract stable IDs
-with `jq`, then pass them to follow-up commands.
+## Read the right JSON fields
 
-```bash
-JOB_JSON="$(atlas generate image google/nano-banana-2/text-to-image \
-  -p "minimal product photo on a white background" \
-  --no-wait \
-  --json)"
+In v0.1.36, generation and operation results use an envelope. Several older
+command surfaces still return their data directly:
 
-PREDICTION_ID="$(printf '%s\n' "$JOB_JSON" | jq -r '.id')"
-atlas generate wait "$PREDICTION_ID" --json
+| Command | JSON path in v0.1.36 |
+|---|---|
+| `models list/search` | `.models[]` |
+| `models get` | `.id`, `.params` |
+| `generate cost` | `.price` |
+| `chat` | `.choices[0].message.content` |
+| `generate image/video/audio/3d/get/wait` | `.outcome`, `.data.prediction.id`, `.data.artifacts[]` |
+| `generate ops list` | `.data.operations[]` |
+
+Generation fields include `schema_version`, `command`, `outcome`, `data`,
+`errors`, and `warnings`. `outcome=pending` means the job is accepted but not
+complete. `outcome=partial` can mean remote success with a local delivery problem.
+Check the exit status as well as the receipt. After upgrading, consult that
+version's embedded guide (`atlas skills read atlas --raw`) before assuming the
+same JSON paths. These examples do not add fallback parsing for other versions.
+
+## Submit once, then resume
+
+```sh
+set -euo pipefail
+mkdir -p outputs
+atlas generate image google/nano-banana-2/text-to-image \
+  -p "A matte black water bottle on a beige pedestal, studio lighting" \
+  --no-wait --json > outputs/submission.json
+
+PREDICTION_ID=$(jq -er '.data.prediction.id' outputs/submission.json)
+atlas generate wait "$PREDICTION_ID" -o ./outputs/ --json > outputs/result.json
+jq '{outcome, files: [.data.artifacts[].local]}' outputs/result.json
 ```
 
-For chat calls, the JSON output is the raw chat completion response:
+Save the receipt before extracting its ID so an error or interrupted wait does
+not lose the original task. `jq -e` makes a missing field fail instead of passing
+`null` to another command. A successful submission is not a downloaded file.
 
-```bash
-atlas chat --model deepseek-ai/DeepSeek-V3-0324 \
-  --json \
-  "Return only a compact JSON object with status=ok"
+## Chat output in pipelines
+
+Non-terminal stdout is JSON even without `--json`. Extract the actual text
+before passing a chat response into another request:
+
+```sh
+set -euo pipefail
+IMAGE_PROMPT=$(atlas chat --model deepseek-ai/deepseek-v3.2 --json \
+  "Write one short product photography prompt for a black water bottle" \
+  | jq -er '.choices[0].message.content')
+atlas generate cost image google/nano-banana-2/text-to-image -p "$IMAGE_PROMPT" --json
 ```
 
-## 5. Recommended script shape
+The chat call is billable; the cost check does not generate an image. Use
+`--max-tokens` and `--timeout` when you need a specific response limit or deadline.
 
-Use this order for production-like automation:
+## Recover after a timeout
 
-1. Validate `ATLASCLOUD_API_KEY`.
-2. Set an isolated `XDG_CONFIG_HOME` for CI runners.
-3. Log in with `atlas auth login --token ... --json`.
-4. Fetch model metadata with `atlas models get ... --json`.
-5. Estimate generation cost before creating image or video jobs.
-6. Start long-running generation with `--no-wait --json`.
-7. Store the prediction ID and resume with `atlas generate get` or `atlas generate wait`.
-
-Runnable examples are in [`../examples`](../examples):
-
-- [`01-minimal.sh`](../examples/01-minimal.sh) - discovery-first chat call.
-- [`02-product-shot.sh`](../examples/02-product-shot.sh) - cost-aware image generation.
-- [`03-pipeline.sh`](../examples/03-pipeline.sh) - LLM prompt expansion plus image/video jobs.
-- [`04-ci-json.sh`](../examples/04-ci-json.sh) - non-interactive CI JSON call.
-
-## 6. Recover after an interrupted wait
-
-Keep the prediction ID returned by a successful submission. If the terminal
-closes or the local wait times out, inspect that same job before creating
-another generation:
-
-```bash
+```sh
 atlas generate get "$PREDICTION_ID" --json --no-download
-atlas generate wait "$PREDICTION_ID" --timeout 10m --json --no-download
+atlas generate wait "$PREDICTION_ID" --timeout 10m -o ./outputs/ --json
 ```
 
-`get` inspects the existing prediction; `wait` is an alias for `get --wait`.
-`--timeout` limits how long this CLI invocation waits. A local timeout alone
-does not establish that the remote prediction failed or was cancelled. Reusing
-the ID avoids submitting another job merely to check the first one.
+These query the existing task. They do not submit a replacement. Local receipts
+can also be inspected with `atlas generate ops list` and resumed with
+`atlas generate ops resume OPERATION_ID`. If no prediction ID was acknowledged,
+inspect the operation receipt and contact support before creating a new job.
 
-Once the existing prediction completes, retrieve its output to an explicit path:
+## Installation options
 
-```bash
-atlas generate get "$PREDICTION_ID" --wait --output ./result.mp4
+For the shell installer, pass custom options to `sh`:
+
+```sh
+INSTALLER=https://raw.githubusercontent.com/AtlasCloudAI/cli/main/install.sh
+curl -fsSL "$INSTALLER" | sh -s -- --prefix="$HOME/bin/atlas-install"
+curl -fsSL "$INSTALLER" | sh -s -- --version=0.1.36
 ```
 
-Choose an output path appropriate for the generated media. `--no-download`
-keeps the command focused on status/response handling; omit it when requesting
-a download. Use `--overwrite` only when intentionally replacing an existing
-local file. Check the exit status and returned response before the next pipeline
-step. If submission failed before you received an ID, this recovery path cannot
-identify a job on its own; inspect the original error and account state before
-retrying.
+The prefix gets a `bin/atlas` executable; add that `bin` directory to PATH.
+On Windows, set `ATLAS_INSTALL_DIR` or `ATLAS_VERSION` before running the installer.
+A version-selected native install can still auto-update; set `ATLAS_AUTO_UPDATE=0`
+to retain it. For manual installs, download the matching archive from
+[Releases](https://github.com/AtlasCloudAI/cli/releases) and add `atlas` to PATH.
 
-### Common automation questions
+## Runnable scripts
 
-- **Why is a model in the catalog but generation stops before submission?**
-  The command needs the corresponding generation route and schema for the
-  selected model. Inspect `atlas models get MODEL_ID --json` and the installed
-  version's command help; catalog membership alone is not a route guarantee.
-- **Does `generate cost` create a job?** It calls the pricing endpoint. It is an
-  estimate for the chosen inputs; creating a prediction is a separate command.
-- **Which version should a bug report describe?** Record `atlas version`, the
-  installation method and exact command. The npm package wraps a prebuilt CLI;
-  this distribution repository does not contain the Go source or an SDK.
+- [Discovery-first chat](../examples/01-minimal.sh): existing-session check, catalog, schema, one chat call.
+- [Product image](../examples/02-product-shot.sh): one cost-aware async image submission.
+- [Prompt pipeline](../examples/03-pipeline.sh): chat text extraction, then image/video submissions.
+- [CI JSON](../examples/04-ci-json.sh): isolated API-key login and JSON chat output.
 
-[Back to installation and support](../README.md) · [Release changes](../CHANGELOG.md)
+Scripts use the v0.1.36 JSON paths above. See [examples/README.md](../examples/README.md)
+for prerequisites, charges, and verification scope.
+
+[Back to README](../README.md)

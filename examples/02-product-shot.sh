@@ -19,11 +19,9 @@ echo
 echo "== 3/3  Start async hero image job =="
 JOB_JSON="$(atlas generate image "$MODEL" -p "$PROMPT" --no-wait --json)"
 echo "$JOB_JSON"
-PREDICTION_ID="$(printf '%s\n' "$JOB_JSON" | jq -r '.id')"
+PREDICTION_ID="$(printf '%s\n' "$JOB_JSON" | jq -er '.data.prediction.id')"
 
 echo
 echo "Prediction id: ${PREDICTION_ID}"
 echo "Wait later with: atlas generate wait ${PREDICTION_ID}"
 echo
-echo "Optional copy draft:"
-atlas chat "Write a 40-word product description and 5 bullet features for ${PRODUCT}. Tone: premium, minimal."

@@ -5,12 +5,12 @@ set -euo pipefail
 
 : "${ATLASCLOUD_API_KEY:?Set ATLASCLOUD_API_KEY before running this script.}"
 
-CHAT_MODEL="${CHAT_MODEL:-deepseek-ai/DeepSeek-V3-0324}"
+CHAT_MODEL="${CHAT_MODEL:-deepseek-ai/deepseek-v3.2}"
 PROMPT="${1:-Return only a compact JSON object with status=ok and source=atlas-cli.}"
 WORKDIR="${RUNNER_TEMP:-${TMPDIR:-/tmp}}/atlas-cli-ci-${RANDOM}"
 
 mkdir -p "$WORKDIR"
-export XDG_CONFIG_HOME="$WORKDIR/config"
+export ATLAS_TOKEN_FILE="$WORKDIR/token.json"
 trap 'rm -rf "$WORKDIR"' EXIT
 
 echo "== 1/3  Authenticate =="
@@ -19,7 +19,7 @@ atlas auth status --json
 
 echo
 echo "== 2/3  Validate model =="
-atlas models get "$CHAT_MODEL" --json | jq '{id, type, provider, status}'
+atlas models get "$CHAT_MODEL" --json | jq '{id, type, vendor}'
 
 echo
 echo "== 3/3  Call chat API =="

@@ -1,46 +1,32 @@
-#!/bin/sh
-set -eu
+#!/usr/bin/env bash
+# Run from the repository root. Requires atlas, jq, and an existing login.
+# Submits one billable image on the first run; subsequent runs resume its receipt.
+# --overwrite replaces the committed demo photo at this specific sample path.
+set -euo pipefail
+trap 'printf "\nDEMO_STOPPED\n"' EXIT
+export ATLAS_AUTO_UPDATE=0 ATLAS_TELEMETRY=0
 
-export PATH="$(pwd)/bin:$PATH"
-export TERM=xterm-256color
+MODEL="google/nano-banana-2/text-to-image"
+PROMPT="Studio product photograph of a matte black water bottle on a pale beige pedestal, soft side lighting, no text, square composition"
 
-pause() {
-  sleep "${1:-0.5}"
-}
+printf '$ atlas version\n'
+atlas version
+printf '\nRequest: %s\n\n' "$PROMPT"
+# shellcheck disable=SC2016 # Display the same variable used by the command below.
+printf '$ atlas generate cost image %s -p "$PROMPT" --resolution 1k --param output_format=png --json\n' "$MODEL"
+atlas generate cost image "$MODEL" -p "$PROMPT" --resolution 1k --param output_format=png --json | jq -c '{model, price}'
 
-type_line() {
-  text="$1"
-  i=1
-  printf "\033[1;36m$\033[0m "
-  while [ "$i" -le "${#text}" ]; do
-    printf "%s" "$(printf "%s" "$text" | cut -c "$i")"
-    sleep 0.025
-    i=$((i + 1))
-  done
-  printf "\n"
-}
-
-run_cmd() {
-  type_line "$1"
-  shift
-  "$@"
-  printf "\n"
-  pause 0.8
-}
-
-clear
-printf "\033[1;37mAtlasCloud CLI\033[0m\n"
-printf "Call Atlas Cloud LLM, image, video, and audio APIs from your shell.\n\n"
-pause 0.8
-
-run_cmd "atlas version" atlas version
-run_cmd "atlas models --help" atlas models --help
-run_cmd "atlas generate image --help" sh -c 'atlas generate image --help | sed -n "1,28p"'
-
-type_line 'atlas generate image google/nano-banana-2/text-to-image -p "..." --no-wait --json'
-printf "\033[2m# Authenticate once with: atlas auth login\033[0m\n"
-printf "\033[2m# Use models list/get and generate cost before billable calls.\033[0m\n\n"
-pause 1.0
-
-printf "\033[1;32mReady:\033[0m curl -fsSL https://raw.githubusercontent.com/AtlasCloudAI/cli/main/install.sh | sh\n"
-pause 2.0
+if [[ -s demo/receipt.json ]]; then
+  PREDICTION_ID=$(jq -er '.data.prediction.id' demo/receipt.json)
+  printf '\nResuming the accepted task; no new generation is submitted.\n'
+  printf '$ atlas generate wait %s -o demo/product.png --overwrite --json\n' "$PREDICTION_ID"
+  atlas generate wait "$PREDICTION_ID" -o demo/product.png --overwrite --json \
+    | jq -c '{outcome, files: [.data.artifacts[].local | {status, path, bytes}]}'
+else
+  # Keep the receipt even if waiting fails. Do not rerun a submission just to retrieve it.
+  # shellcheck disable=SC2016 # Display the same variable used by the command below.
+  printf '\n$ atlas generate image %s -p "$PROMPT" --resolution 1k --param output_format=png -o demo/product.png --overwrite --json\n' "$MODEL"
+  atlas generate image "$MODEL" -p "$PROMPT" --resolution 1k --param output_format=png -o demo/product.png --overwrite --json > demo/receipt.json
+  jq -c '{outcome, files: [.data.artifacts[].local | {status, path, bytes}]}' demo/receipt.json
+fi
+printf '\nDEMO_COMPLETE\n'

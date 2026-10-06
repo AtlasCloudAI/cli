@@ -1,5 +1,7 @@
 # 用 Atlas 和你的 AI 助手一起创作
 
+[English guide](AGENT_QUICKSTART_EN.md)
+
 用自然语言描述需求，让 Agent 通过 Atlas 找模型、检查参数、生成内容并交付文件。
 从产品图、参考图编辑、图片动画、配音、3D 资产，或指定模型的聊天与分析开始。
 
@@ -34,12 +36,14 @@ irm https://raw.githubusercontent.com/AtlasCloudAI/cli/main/install.ps1 | iex
 **第二步，检查登录；没有登录时完成授权。**
 
 ```sh
-atlas auth status --json
+atlas auth ensure --non-interactive --json
+# 凭据缺失或无法刷新时，再登录：
 atlas auth login
 ```
 
-`auth status` 只看本地 token、不调服务端。只有 `status` 为 `logged_in` 才表示
-access token 仍有效；`expired` 或 `refresh_required` 需要重新登录。
+`auth ensure` 会检查现有会话并在需要时刷新，不打开浏览器，也不提交生成任务。
+`auth status` 只看本地 token；access token 过期不代表 refresh token 已失效。
+凭据缺失或已无法刷新时才重新登录；网络错误先排障，不反复覆盖已有登录。
 
 日常使用优先复用 OAuth 登录，无需把 API key 交给 Agent。出错时先运行
 `atlas doctor --json`。生产账号登录成功不代表每个供应商都可用；不要为了绕过供应商
@@ -66,8 +70,8 @@ atlas skills install --dir .claude/skills
 ## 复制给 Agent 帮你配置
 
 > 请帮我配置 AtlasCloud。先检查 atlas 是否已安装；未安装时使用官方安装方式。
-> 检查 `atlas auth status --json`，仅当 `status` 为 `logged_in` 时复用现有登录；
-> `expired` / `refresh_required` / `not_logged_in` 时引导我完成 `atlas auth login`。
+> 用 `atlas auth ensure --non-interactive --json` 检查并刷新已有登录；
+> 只有凭据缺失或无法刷新时才引导我完成 `atlas auth login`，网络错误先排障。
 > 为我当前使用的 Claude Code 或 Codex 安装 atlas skill；无法确定工具时先问我。
 > 最后读取 `atlas skills read atlas --raw` 验证指南可用，告诉我是否需要新开会话。
 > 配置过程不要生成付费内容。

@@ -1,37 +1,34 @@
-# Atlas Cloud CLI — Examples
+# Atlas CLI script examples
 
-Four layered, copy-pasteable API caller workflows. Each is self-contained and
-uses documented `atlas` commands (`auth`, `models`, `generate`, `chat`).
+These scripts target public CLI **v0.1.36** and require `atlas` and `jq`.
+Run from this repository after `atlas auth login`; each script submits the
+billable calls listed below. An estimate is informational and does not enforce
+an account spending limit.
 
-| Script | Layer | What it shows |
-|---|---|---|
-| [`01-minimal.sh`](01-minimal.sh) | Discovery-first call | Check auth, list model catalog entries, inspect a schema, then make one chat call. |
-| [`02-product-shot.sh`](02-product-shot.sh) | Cost-aware generation | Estimate an image request, then start an async product hero image job. |
-| [`03-pipeline.sh`](03-pipeline.sh) | Scripted pipeline | Idea → LLM prompts → cost checks → async image and video jobs. |
-| [`04-ci-json.sh`](04-ci-json.sh) | CI JSON job | Authenticate from `ATLASCLOUD_API_KEY`, isolate credentials, validate a model, then emit JSON. |
+| Script | Billable calls |
+|---|---|
+| [01-minimal.sh](01-minimal.sh) | One chat request |
+| [02-product-shot.sh](02-product-shot.sh) | One image generation, returned asynchronously |
+| [03-pipeline.sh](03-pipeline.sh) | Two chat requests, one image generation, and one video generation |
+| [04-ci-json.sh](04-ci-json.sh) | One chat request after API-key login |
 
-## Prerequisites
-
-1. Install the CLI — see the [root README](../README.md#install).
-2. Install `jq` if you want to run the JSON automation examples unchanged.
-3. Authenticate once:
-
-   ```bash
-   atlas auth login                              # interactive
-   atlas auth login --token "$ATLASCLOUD_API_KEY"   # CI / non-interactive
-   ```
-
-   Get a free key at the [Atlas Cloud console](https://www.atlascloud.ai/console/api-keys?utm_source=github&utm_campaign=cli).
-
-## Run
-
-```bash
-chmod +x examples/*.sh
-./examples/01-minimal.sh
+```sh
+bash examples/01-minimal.sh
+bash examples/02-product-shot.sh
 ```
 
-For CI:
+For CI, inject `ATLASCLOUD_API_KEY` through the runner's secret store, then run
+`bash examples/04-ci-json.sh`. That script uses a temporary `ATLAS_TOKEN_FILE`
+and removes it on exit; it does not replace a developer's stored login.
 
-```bash
-ATLASCLOUD_API_KEY=... ./examples/04-ci-json.sh
-```
+Generation IDs are read from `.data.prediction.id`. Chat text is read from
+`.choices[0].message.content`; command substitution is noninteractive and returns
+JSON, not plain text. Read the [JSON and recovery guide](../docs/api-caller-workflows.md)
+before changing these expressions or upgrading your CLI.
+
+The shell flow and field extraction are tested against v0.1.36 response shapes.
+The README demo is a live generated/downloaded image; video, audio, and 3D
+[complete inputs](../docs/MEDIA_EXAMPLES.md) are checked with live schema and
+`--explain`, without submitting those paid tasks.
+
+[Install](../README.md#install) · [Agent guide](../docs/AGENT_QUICKSTART_EN.md)
