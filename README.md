@@ -1,4 +1,4 @@
-# Atlas Cloud CLI
+# Atlas Cloud CLI — AI Media Generation for Your Terminal
 
 Create images, videos, speech, and 3D assets, or call an LLM from your terminal,
 scripts, and AI coding agent.
@@ -60,7 +60,7 @@ Choose device login to authorize your AtlasCloud account, or paste an
 starting a login flow. Chat and generation are billable; model discovery and
 cost estimation do not submit a generation.
 
-### With Claude Code or Codex
+### Generate images and videos with Claude Code or Codex
 
 Choose the command for your agent:
 
@@ -80,7 +80,7 @@ The skill reads its detailed instructions from your installed CLI and updates
 with it. See the [English agent guide](https://github.com/AtlasCloudAI/cli/blob/main/docs/AGENT_QUICKSTART_EN.md)
 or [中文指南](https://github.com/AtlasCloudAI/cli/blob/main/docs/AGENT_QUICKSTART.md) for setup requests and more tasks.
 
-### Directly from your terminal
+### Generate an AI image from your terminal
 
 ```sh
 atlas models get google/nano-banana-2/text-to-image --json
@@ -202,6 +202,11 @@ custom install path, and remove the unused directory from your user PATH.
 
 - 📚 **Explore more** — [all 485 live models »](https://www.atlascloud.ai/models?utm_source=github&utm_campaign=cli)
 <!-- ATLAS-MODELS:END -->
+
+## Task guides
+
+- [Generate product images with Claude Code or Codex](https://github.com/AtlasCloudAI/cli/blob/main/docs/PRODUCT_IMAGES_WITH_AGENTS.md) — install the skill, estimate cost, and save a product photo.
+- [Turn an image into a video from your terminal](https://github.com/AtlasCloudAI/cli/blob/main/docs/IMAGE_TO_VIDEO.md) — inspect inputs, estimate cost, and resume the same task after an interruption.
 
 ## Guides and support
 
