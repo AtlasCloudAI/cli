@@ -1,6 +1,8 @@
 # Atlas Cloud CLI
 
-> Call Atlas Cloud LLM, image, video, audio, and 3D APIs from your shell, scripts, and CI jobs — with image/video/audio inputs for multimodal chat.
+Call AtlasCloud LLM, image, video, audio, and 3D APIs from your terminal, scripts,
+or AI coding agent. Create product images, animate reference photos, generate
+speech, or analyze media with a model of your choice.
 
 <p>
   <a href="https://github.com/AtlasCloudAI/cli/releases"><img src="https://img.shields.io/github/v/release/AtlasCloudAI/cli?style=flat&colorA=18181B&colorB=28CF8D" alt="release" /></a>
@@ -10,11 +12,282 @@
   <a href="https://github.com/AtlasCloudAI/cli/pulls"><img src="https://img.shields.io/badge/PRs-welcome-28CF8D.svg?style=flat&colorA=18181B" alt="PRs welcome" /></a>
 </p>
 
-> **[→ Get your free Atlas Cloud API key](https://www.atlascloud.ai/console/api-keys?utm_source=github&utm_campaign=cli)** — 300+ models, one key, OpenAI-compatible.
+[Install](#install) · [Quick start](#quick-start) · [Examples](#examples) · [Troubleshooting](#troubleshooting) · [Releases](https://github.com/AtlasCloudAI/cli/releases)
 
-This repository hosts public installers, release artifacts, and lightweight package-manager wrappers for the `atlas` CLI. The Go source repository is maintained separately.
+## Install
 
-[Install](#install) · [Quick start and API workflows](#api-caller-workflows) · [CLI documentation](https://www.atlascloud.ai/docs/cli) · [Releases](https://github.com/AtlasCloudAI/cli/releases)
+Choose one installation method.
+
+### macOS / Linux
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/AtlasCloudAI/cli/main/install.sh | sh
+```
+
+The default executable is `~/.local/bin/atlas`. If your shell cannot find it,
+add the directory to your PATH, then add the same line to your shell profile:
+
+```sh
+export PATH="$HOME/.local/bin:$PATH"
+```
+
+For a custom prefix, pass `--prefix=/your/prefix` to `sh -s --`. To select an
+initial version, pass `--version=X.Y.Z`. Native installs can update automatically;
+see [Updating](#updating) to retain a specific version.
+
+### Windows PowerShell
+
+```powershell
+irm https://raw.githubusercontent.com/AtlasCloudAI/cli/main/install.ps1 | iex
+```
+
+The default directory is `%LOCALAPPDATA%\AtlasCloud\bin`. The installer adds it
+to your user PATH; open a new terminal afterward. Set `ATLAS_INSTALL_DIR` for a
+custom directory or `ATLAS_VERSION` for a specific initial version.
+
+### Homebrew or npm
+
+```sh
+# Homebrew: the formula installs the atlas command
+brew install AtlasCloudAI/tap/atlascloud
+
+# Or npm
+npm install -g atlascloud-cli
+```
+
+The shell and Windows installers resolve the latest stable version from
+[`VERSION`](https://github.com/AtlasCloudAI/cli/blob/main/VERSION). Installers and
+the npm wrapper download a prebuilt release archive and verify its checksum.
+For manual installation, download your platform's archive from
+[Releases](https://github.com/AtlasCloudAI/cli/releases) and put `atlas` in your PATH.
+
+Verify the installation:
+
+```sh
+atlas version
+```
+
+## Quick start
+
+### 1. Sign in
+
+```sh
+atlas auth login
+atlas auth status
+```
+
+Device login is recommended: follow the authorization instructions to sign in
+with your AtlasCloud account. The CLI stores credentials locally. You can also
+choose to paste an [API key](https://www.atlascloud.ai/console/api-keys).
+Chat and generation calls incur model usage charges; discovery and cost
+estimation do not submit a billable generation.
+
+### 2. Choose how to use Atlas
+
+**With Claude Code or Codex**, install the Atlas skill for your agent:
+
+```sh
+atlas skills install --agent claude
+# Or, for Codex:
+atlas skills install --agent codex
+```
+
+Start a new agent session and ask:
+
+> Use Atlas to create a product photo from this reference. Keep the packaging
+> and logo intact. Show me the model and cost estimate before generating, then
+> save the result in this project.
+
+The skill guides your agent through model discovery, parameter checks, generation,
+and file delivery. Its detailed instructions come from your installed CLI and
+update with it. See the [Agent quickstart / Agent 上手指南](https://github.com/AtlasCloudAI/cli/blob/main/docs/AGENT_QUICKSTART.md)
+for setup and more tasks.
+
+**Directly from your terminal**, inspect the model and estimate cost before generating:
+
+```sh
+atlas models get google/nano-banana-2/text-to-image --json
+atlas generate cost image google/nano-banana-2/text-to-image \
+  -p "A minimal product photo on a white background" --json
+
+# This call is billable. Wait for completion and save the files in ./outputs/.
+mkdir -p outputs
+atlas generate image google/nano-banana-2/text-to-image \
+  -p "A minimal product photo on a white background" -o ./outputs/
+```
+
+Generation waits and downloads by default. The result reports the task status
+and saved file paths. Use `--no-download` for remote results only.
+Model availability, required inputs, and pricing depend on your account's live
+catalog; inspect it before relying on an example model.
+
+## Examples
+
+### Discover models and parameters
+
+```sh
+atlas models list --type video --json
+atlas models list --type audio --json
+atlas models list --type 3d --json
+atlas models search seedance --type video --json
+atlas models get MODEL_ID --json
+```
+
+Replace `MODEL_ID` with a model from your catalog. Types include `chat`, `image`,
+`video`, `audio`, and `3d`. Audio and 3D generation require the selected model and
+schema to be exposed in your account catalog; unsupported routes stop before submission.
+
+### Chat and media analysis
+
+```sh
+atlas chat --model MODEL_ID "Summarize this paragraph: ..."
+atlas chat --model VISION_MODEL_ID --image @product.png "Describe this product"
+```
+
+Use a model that supports your input. Multimodal chat also accepts `--video`
+and `--audio`. Chat returns the full response when ready; it currently buffers
+responses rather than streaming tokens. Use `--timeout 15m` for a longer request.
+
+### Video, audio, and 3D
+
+```sh
+# Check the selected model's schema first; replace the model placeholders.
+atlas generate cost video VIDEO_MODEL_ID -p "A slow camera push toward a mountain" --json
+atlas generate video VIDEO_MODEL_ID -p "A slow camera push toward a mountain"
+atlas generate audio AUDIO_MODEL_ID -p "Welcome to our store"
+atlas generate 3d THREE_D_MODEL_ID -p "A low-poly chair"
+```
+
+Models may require a reference image, audio, voice, or other fields. Use
+`atlas generate video MODEL_ID --help` to inspect the live schema, and pass
+local media as `@file`, for example `--image @reference.png`.
+Cost estimation supports image, video, audio, and 3D; it never uploads local files.
+If pricing requires a media URL, provide an HTTP(S) URL.
+
+### Async tasks, scripts, and CI
+
+```sh
+atlas generate image google/nano-banana-2/text-to-image \
+  -p "A minimal product photo on a white background" --no-wait --json
+
+# Use the prediction ID returned by that submission.
+atlas generate get PREDICTION_ID --json
+atlas generate wait PREDICTION_ID -o ./outputs/ --json
+```
+
+`--no-wait` returns a submission receipt, not a finished file. After a timeout or
+interruption, continue the same task with `get` or `wait`; a new generation can
+incur another charge. Local receipts are available through `atlas generate ops list`;
+`atlas generate ops resume OPERATION_ID` resumes an accepted task without resubmitting it.
+If the submission outcome is unknown, inspect the receipt and contact support
+before starting a replacement.
+
+Use `--json` for scripts. Output is also JSON by default when stdout is not a terminal.
+For CI, inject `ATLASCLOUD_API_KEY` through your CI secret store and authenticate explicitly:
+
+```sh
+atlas auth login --token "$ATLASCLOUD_API_KEY"
+```
+
+The CLI does not automatically load `.env` or use `ATLASCLOUD_API_KEY` as credentials.
+In a local shell, export the variable yourself before the login command; merely
+writing it in `.env` is insufficient.
+See the [API caller guide](https://github.com/AtlasCloudAI/cli/blob/main/docs/api-caller-workflows.md)
+and [script examples](https://github.com/AtlasCloudAI/cli/tree/main/examples) for more workflows.
+
+## Commands
+
+| Command | Purpose |
+|---|---|
+| `atlas auth` | Sign in, sign out, and inspect authentication |
+| `atlas models` | Discover models and inspect their schemas |
+| `atlas chat` | Chat with an LLM or analyze supported media |
+| `atlas generate` | Generate image/video/audio/3D outputs, estimate cost, and retrieve tasks |
+| `atlas generate ops` | Inspect local receipts and resume accepted tasks |
+| `atlas skills` | Install or read the embedded Atlas agent skill |
+| `atlas account` | Show, list, or switch accounts |
+| `atlas doctor` | Diagnose local installation, authentication, and configuration |
+| `atlas update` | Update an official native installation |
+| `atlas version` | Show the installed version |
+
+Run `atlas --help` or `atlas <command> --help` for details.
+Global flags include `--json`, `--quiet`, `--no-color`, and `--verbose`.
+
+## Updating
+
+Official native installations update in the background during interactive use,
+at most once every 24 hours. The next invocation uses the new version after
+installation finishes. JSON commands and CI do not start background updates.
+
+```sh
+atlas update          # Update an official native install now
+atlas update --check  # Check without installing
+atlas doctor          # Inspect install method and update status
+
+# For package-manager installations:
+brew upgrade atlascloud
+npm install -g atlascloud-cli@latest
+```
+
+To disable background updates, set `ATLAS_AUTO_UPDATE=0` in your shell profile
+(PowerShell: `$env:ATLAS_AUTO_UPDATE="0"`). Manual `atlas update` still works.
+Homebrew/npm installations stay managed by their package manager. Manually copied
+binaries need manual replacement. See the [changelog](https://github.com/AtlasCloudAI/cli/blob/main/CHANGELOG.md)
+for release changes.
+
+## Troubleshooting
+
+- **Command not found:** check PATH and reopen your terminal after installation.
+- **Not logged in:** run `atlas auth login`; for CI, pass `--token` explicitly.
+- **Unknown model or unsupported input:** use `atlas models search` and `atlas models get` to inspect your account catalog.
+- **Wait timed out or terminal closed:** reuse the prediction ID with `atlas generate get` or `atlas generate wait`.
+- **Generation succeeded but download failed:** retrieve the same task again and check the reported local file result.
+- **Installer checksum failure:** retry the official installer or report the URL and version to support.
+
+Start with `atlas doctor --json` for local diagnostics. Do not include credentials
+in a bug report.
+
+## Privacy
+
+Atlas stores authentication in your platform's credential storage or a protected
+local fallback. Use `atlas auth logout` to clear local authentication.
+
+Official releases send product usage events by default: command, version,
+platform, duration, outcome/error metadata, and model ID for model calls. Events
+are associated with a random local installation ID. They do not include prompts,
+auth/API tokens, media content, or file paths. Installers also send an installation ping.
+
+To opt out of usage telemetry and the installation ping, set `ATLAS_TELEMETRY=0`
+before installation and keep it set in your shell profile:
+
+```sh
+export ATLAS_TELEMETRY=0
+```
+
+In PowerShell: `$env:ATLAS_TELEMETRY="0"`. Model API requests still send the inputs
+needed to execute your request, regardless of the telemetry setting.
+
+## Uninstall
+
+Optionally run `atlas auth logout` first to clear stored credentials.
+
+```sh
+# Shell installer, default prefix:
+rm -f "$HOME/.local/bin/atlas"
+
+# Or, for package-manager installations:
+brew uninstall atlascloud
+npm uninstall -g atlascloud-cli
+```
+
+For a custom install, remove `atlas` from your chosen install directory.
+For the default Windows install:
+
+```powershell
+Remove-Item "$env:LOCALAPPDATA\AtlasCloud\bin\atlas.exe"
+```
+
+Remove that directory from your user PATH if it is no longer needed.
 
 ## Supported Models
 
@@ -28,222 +301,31 @@ This repository hosts public installers, release artifacts, and lightweight pack
 - 📚 **Explore more** — [all 485 live models »](https://www.atlascloud.ai/models?utm_source=github&utm_campaign=cli)
 <!-- ATLAS-MODELS:END -->
 
-> 🎬 **Newest video models** — Seedance 2.5 · Kling 4.0 · Wan 3.0 · Kling Video O3.
+Model availability, parameters, and pricing vary by account and model. Use
+`atlas models get` and `atlas generate cost` against the live catalog.
 
+## Guides and support
 
-> ℹ️ **Audio and 3D**: current releases provide `atlas generate audio` and `atlas generate 3d`. Both require the selected model and schema to be exposed in your account catalog; unsupported routes stop before submission. The CLI also accepts audio as input for multimodal chat (`atlas chat --audio @file.mp3`). See the [npm usage guide](npm/README.md#use-atlas-directly) and [release history](CHANGELOG.md) for the supported workflows.
+- [Agent quickstart / Agent 上手指南](https://github.com/AtlasCloudAI/cli/blob/main/docs/AGENT_QUICKSTART.md)
+- [CLI documentation](https://www.atlascloud.ai/docs/cli)
+- [API caller workflows](https://github.com/AtlasCloudAI/cli/blob/main/docs/api-caller-workflows.md)
+- [GitHub Issues](https://github.com/AtlasCloudAI/cli/issues) — include version, OS/arch, install method, and the failing command, with secrets removed.
+- [Discord](https://discord.gg/MWmMr4q9es)
 
-Availability, parameters, and pricing vary by model. Use `atlas models get` and
-`atlas generate cost` against the live catalog before automating billable calls.
+This public repository hosts installers, release artifacts, and package-manager
+wrappers. The Go source repository is maintained separately.
 
-## Contents
+## More Atlas Cloud tools
 
-- [Supported Models](#supported-models)
-- [Install](#install)
-- [API caller workflows](#api-caller-workflows)
-- [Guides](#guides)
-- [Commands](#commands)
-- [Global Flags](#global-flags)
-- [Updating](#updating)
-- [Uninstall](#uninstall)
-- [Troubleshooting](#troubleshooting)
-- [Support](#support)
-- [More Atlas Cloud Tools](#more-atlas-cloud-tools)
-- [License](#license)
+For Claude Code and Codex users of this CLI, start with the built-in Atlas skill above.
+Other integrations:
 
-## Install
-
-### macOS / Linux
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AtlasCloudAI/cli/main/install.sh | sh
-```
-
-Options:
-
-```bash
-INSTALLER=https://raw.githubusercontent.com/AtlasCloudAI/cli/main/install.sh
-
-# Custom prefix, no sudo if the directory is writable
-curl -fsSL "$INSTALLER" | sh -s -- --prefix="$HOME/.local"
-```
-
-The shell installer resolves the version from the repository's [`VERSION`](VERSION) file unless you set `ATLAS_VERSION` or pass `--version`. It downloads that version's matching GitHub Release archive and verifies it against `checksums.txt`.
-
-### Windows
-
-```powershell
-irm https://raw.githubusercontent.com/AtlasCloudAI/cli/main/install.ps1 | iex
-```
-
-Options:
-
-```powershell
-# Custom install dir
-$env:ATLAS_INSTALL_DIR="$HOME\bin"; irm https://raw.githubusercontent.com/AtlasCloudAI/cli/main/install.ps1 | iex
-
-# Skip adding atlas.exe to user PATH
-$env:ATLAS_NO_PATH="1"; irm https://raw.githubusercontent.com/AtlasCloudAI/cli/main/install.ps1 | iex
-```
-
-The Windows installer resolves the version from the repository's [`VERSION`](VERSION) file unless you set `ATLAS_VERSION` or pass `-Version`. It downloads that version's matching `windows_amd64` or `windows_arm64` zip, verifies it against `checksums.txt`, installs `atlas.exe`, and adds the install directory to the user PATH by default.
-
-### Homebrew
-
-```bash
-brew install AtlasCloudAI/tap/atlascloud
-```
-
-The formula is named `atlascloud`, but it installs the `atlas` command.
-
-### npm
-
-```bash
-npm install -g atlascloud-cli
-```
-
-The npm package is a thin wrapper. Its postinstall script downloads the matching prebuilt release archive and verifies the checksum before exposing `atlas`.
-
-### Manual
-
-Download the archive for your OS and architecture from [Releases](https://github.com/AtlasCloudAI/cli/releases), extract it, and place the binaries in your `PATH`.
-
-## API caller workflows
-
-Authenticate once, then choose the command path that matches the API call you
-want to make. Discovery and cost commands are safe to run before starting a
-billable generation.
-
-```bash
-atlas auth login                               # interactive
-atlas auth login --token "$ATLASCLOUD_API_KEY" # CI / non-interactive
-atlas auth status
-```
-
-| Job | Command pattern | Notes |
-|---|---|---|
-| Discover available models | `atlas models list --type video --json` | Replace `video` with `chat` or `image`; avoid hard-coding stale model IDs. |
-| Inspect model parameters | `atlas models get MODEL_ID --json` | Read required fields, defaults, and vendor-specific parameter names. |
-| Estimate generation cost | `atlas generate cost video MODEL_ID ... --json` | Use `cost image` or `cost video`; calls the pricing endpoint only. |
-| Call a chat or multimodal model | `atlas chat --model MODEL_ID "prompt"` | Supports text plus `--image`, `--video`, and `--audio` for capable models. |
-| Start an image/video job | `atlas generate image MODEL_ID ...` | Use `generate image` or `generate video`; add `--no-wait --json` for async scripts. |
-| Continue an async job | `atlas generate get PREDICTION_ID` / `atlas generate wait PREDICTION_ID` | Poll status or wait until completion. |
-| Script and CI usage | `atlas --json ... \| jq ...` | Non-TTY output is JSON by default; `--json` makes it explicit. |
-
-### Explore without model calls
-
-```bash
-atlas models list --type video --json | jq -r '.models[].id'
-atlas models search seedance --type video --json
-atlas models get bytedance/seedance-2.5/text-to-video --json
-```
-
-### Estimate cost before generation
-
-```bash
-atlas generate cost video bytedance/seedance-2.5/text-to-video \
-  -p "A product shot slowly rotates on a clean white background" \
-  --duration 5 \
-  --resolution 720p \
-  --param generate_audio=false \
-  --json
-```
-
-### Make API calls
-
-```bash
-atlas chat --model deepseek-ai/DeepSeek-V3-0324 "Return only a JSON object with status=ok"
-
-PRED=$(atlas generate image google/nano-banana-2/text-to-image \
-  -p "minimal product photo on a white background" \
-  --no-wait --json | jq -r '.id')
-atlas generate wait "$PRED"
-```
-
-Prefer environment variables? Copy [`.env.example`](.env.example) to `.env` and set `ATLASCLOUD_API_KEY`.
-
-More API caller scripts (discovery-first call → cost-aware generation → scripted pipeline → CI JSON job) live in [`examples/`](examples/).
-
-## Guides
-
-- [API caller workflows](docs/api-caller-workflows.md) — how to use Atlas CLI as a shell-first API client in local scripts, CI jobs, and backend automation.
-
-## Commands
-
-| Command | Purpose |
-|---|---|
-| `atlas auth` | Log in, log out, inspect local auth state |
-| `atlas chat` | Send a chat completion request |
-| `atlas models` | List and inspect available models |
-| `atlas generate` | Generate images and videos, poll job status |
-| `atlas account` | Manage account selection |
-| `atlas version` | Print build information |
-
-Run `atlas --help` or `atlas <command> --help` for full flag reference.
-
-## Global Flags
-
-| Flag | Purpose |
-|---|---|
-| `--json` | Force machine-readable JSON output |
-| `--no-color` | Disable ANSI color |
-| `--quiet` | Suppress spinners and progress text |
-| `--verbose` | Print debug output to stderr |
-
-## Updating
-
-See the [changelog](CHANGELOG.md) for changes in every public release.
-
-```bash
-# curl installer
-curl -fsSL https://raw.githubusercontent.com/AtlasCloudAI/cli/main/install.sh | sh
-
-# Homebrew
-brew update && brew upgrade atlascloud
-
-# npm
-npm install -g atlascloud-cli@latest
-```
-
-## Uninstall
-
-```bash
-# curl installer, default prefix
-sudo rm -f /usr/local/bin/atlas
-
-# Homebrew
-brew uninstall atlascloud
-
-# npm
-npm uninstall -g atlascloud-cli
-```
-
-## Troubleshooting
-
-`Not logged in` — run `atlas auth login`.
-
-`Unknown model` — run `atlas models list` or `atlas models search <keyword>`.
-
-Wait timed out or the terminal closed after submission — reuse the prediction ID with `atlas generate get` or `atlas generate wait` before submitting another job. See [async recovery and automation questions](docs/api-caller-workflows.md#6-recover-after-an-interrupted-wait).
-
-Installer checksum failure — do not run the downloaded archive. Retry the install or open an issue with the exact URL and version.
-
-## Support
-
-Bugs and feature requests: [GitHub Issues](https://github.com/AtlasCloudAI/cli/issues). Please include `atlas version`, your OS/arch, install method, and the exact command that failed.
-
-## More Atlas Cloud Tools
-
-- 🧰 **Want to use it from the terminal?** → [atlascloud-cli](https://github.com/AtlasCloudAI/cli)
-- 🤖 **Want to use it in Claude Code / Cursor?** → Install the [Atlas Cloud MCP Server](https://github.com/AtlasCloudAI/mcp-server)
-- 🎬 **Want it as a Claude Code / Codex / Gemini CLI Skill?** → Install [atlas-cloud-skills](https://github.com/AtlasCloudAI/atlas-cloud-skills)
-- 🎨 **ComfyUI nodes** → [atlascloud_comfyui](https://github.com/AtlasCloudAI/atlascloud_comfyui)
-- 🔁 **n8n nodes** → [n8n-nodes-atlascloud](https://github.com/AtlasCloudAI/n8n-nodes-atlascloud)
-- 💬 **Join our Discord** → [discord.gg/MWmMr4q9es](https://discord.gg/MWmMr4q9es)
-- 🌐 **Website** → [atlascloud.ai](https://www.atlascloud.ai?utm_source=github&utm_campaign=cli)
+- [Atlas Cloud MCP Server](https://github.com/AtlasCloudAI/mcp-server)
+- [Atlas Cloud Skills](https://github.com/AtlasCloudAI/atlas-cloud-skills)
+- [ComfyUI nodes](https://github.com/AtlasCloudAI/atlascloud_comfyui)
+- [n8n nodes](https://github.com/AtlasCloudAI/n8n-nodes-atlascloud)
+- [AtlasCloud website](https://www.atlascloud.ai)
 
 ## License
 
 MIT
-
-<!-- TODO(hero): add a terminal recording or screenshot showing atlas CLI generating an image or video. -->
