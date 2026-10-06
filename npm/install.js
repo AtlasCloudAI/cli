@@ -3,6 +3,9 @@ const crypto = require("crypto");
 const fs = require("fs");
 const https = require("https");
 const path = require("path");
+const { pipeline } = require("stream");
+const { HttpsProxyAgent } = require("https-proxy-agent");
+const { getProxyForUrl } = require("proxy-from-env");
 const { execFileSync } = require("child_process");
 
 const pkg = require("./package.json");
@@ -62,41 +65,49 @@ function detectPackageManager() {
 
 function download(url, dest, redirects = 0) {
   return new Promise((resolve, reject) => {
-    if (redirects > 5) {
-      reject(new Error("too many redirects"));
-      return;
-    }
-
-    const file = fs.createWriteStream(dest);
-    https
-      .get(url, (res) => {
-        if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
-          file.close(() => {
-            fs.rmSync(dest, { force: true });
-            download(res.headers.location, dest, redirects + 1)
-              .then(resolve)
-              .catch(reject);
-          });
-          return;
-        }
-
-        if (res.statusCode !== 200) {
-          file.close(() => {
-            fs.rmSync(dest, { force: true });
-            reject(new Error(`HTTP ${res.statusCode} for ${url}`));
-          });
-          return;
-        }
-
-        res.pipe(file);
-        file.on("finish", () => file.close(resolve));
-      })
-      .on("error", (err) => {
-        file.close(() => {
-          fs.rmSync(dest, { force: true });
-          reject(err);
-        });
-      });
+    if (redirects > 5) return reject(new Error("too many redirects"));
+    const target = new URL(url);
+    if (target.protocol !== "https:") return reject(new Error("release downloads require HTTPS"));
+    const proxy = getProxyForUrl(url);
+    const agent = proxy ? new HttpsProxyAgent(proxy) : undefined;
+    let settled = false;
+    let responseBody;
+    const finish = (err) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(deadline);
+      if (agent) agent.destroy();
+      if (err) {
+        fs.rm(dest, { force: true }, () => reject(err));
+      } else {
+        resolve();
+      }
+    };
+    const request = https.get(url, { agent }, (res) => {
+      if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+        res.resume();
+        settled = true;
+        clearTimeout(deadline);
+        if (agent) agent.destroy();
+        download(new URL(res.headers.location, url).href, dest, redirects + 1).then(resolve, reject);
+        return;
+      }
+      if (res.statusCode !== 200) {
+        res.resume();
+        finish(new Error(`HTTP ${res.statusCode} for ${target.hostname}`));
+        return;
+      }
+      responseBody = res;
+      pipeline(res, fs.createWriteStream(dest), finish);
+    });
+    const deadline = setTimeout(() => request.destroy(new Error("download exceeded 120s")), 120000);
+    request.setTimeout(30000, () => request.destroy(new Error("download stalled for 30s")));
+    request.on("error", (err) => {
+      // The pipeline callback runs after the file handle closes. Windows
+      // cannot remove an open output file, so defer cleanup to that callback.
+      if (responseBody) responseBody.destroy(err);
+      else finish(err);
+    });
   });
 }
 
@@ -158,7 +169,7 @@ function extractArchive() {
   });
 }
 
-(async () => {
+if (require.main === module) (async () => {
   fs.mkdirSync(vendorDir, { recursive: true });
 
   console.log(`atlascloud-cli: downloading ${archiveURL}`);
@@ -192,3 +203,5 @@ function extractArchive() {
   console.error("atlascloud-cli: install failed:", err.message);
   process.exit(1);
 });
+
+module.exports = { download };

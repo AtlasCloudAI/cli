@@ -1,24 +1,7 @@
 {
   "name": "atlascloud-cli",
-  "version": "0.1.35",
-  "description": "AtlasCloud CLI for calling LLM, image, video, and audio APIs from terminals, scripts, and CI jobs.",
-  "keywords": [
-    "atlascloud",
-    "atlas-cloud",
-    "ai-api",
-    "ai-cli",
-    "sora-2",
-    "veo-3",
-    "kling-3",
-    "seedance-2",
-    "flux-2",
-    "nano-banana",
-    "gpt-image-2",
-    "ai-video-generation",
-    "text-to-image",
-    "text-to-video",
-    "generative-ai"
-  ],
+  "version": "0.1.36",
+  "description": "AtlasCloud CLI for calling LLM, image, video, audio, and 3D APIs from terminals, scripts, and CI jobs.",
   "bin": {
     "atlas": "bin/atlas.js"
   },
@@ -50,5 +33,9 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "dependencies": {
+    "https-proxy-agent": "7.0.6",
+    "proxy-from-env": "2.1.0"
   }
 }
