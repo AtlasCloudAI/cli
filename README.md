@@ -198,9 +198,9 @@ custom install path, and remove the unused directory from your user PATH.
 - 🎬 **Video** (220) — MiniMax H3 Max · MiniMax H3 Fast · Gemini Omni 1.1 Flash · MiniMax H3 · Wan-3.0-Prime · Wan-3.0
 - 🎨 **Image** (138) — GPT Image 2.5 Sunburst · GPT Image 2.5 Flare · Seedream v4.7 · MAI-Image-2.6-Flash
 - 🧊 **3D** (14) — Seed3D 2.0 · Tripo H3.1 · Hunyuan 3D Rapid · Hunyuan 3D Pro
-- 💬 **LLM** (71) — DeepSeek V4.1 Flash · GLM 5.3 Flash · DeepSeek V4 Pro 0813 · Grok 4.6
+- 💬 **LLM** (72) — DeepSeek V4.1 Flash · GLM 5.3 Flash · DeepSeek V4 Pro 0813 · Grok 4.7
 
-- 📚 **Explore more** — [all 488 live models »](https://www.atlascloud.ai/models?utm_source=github&utm_campaign=cli)
+- 📚 **Explore more** — [all 489 live models »](https://www.atlascloud.ai/models?utm_source=github&utm_campaign=cli)
 <!-- ATLAS-MODELS:END -->
 
 ## Task guides
