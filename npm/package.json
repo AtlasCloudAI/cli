@@ -1,6 +1,6 @@
 {
   "name": "atlascloud-cli",
-  "version": "0.1.37",
+  "version": "0.1.38",
   "description": "AtlasCloud CLI for calling LLM, image, video, audio, and 3D APIs from terminals, scripts, and CI jobs.",
   "bin": {
     "atlas": "bin/atlas.js"

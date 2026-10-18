@@ -135,12 +135,14 @@ and [runnable examples](https://github.com/AtlasCloudAI/cli/tree/main/examples).
 | Command | Purpose |
 |---|---|
 | `atlas auth` | Sign in, check/refresh the existing session, or sign out |
-| `atlas models` | Discover models and inspect schemas |
-| `atlas chat` | Chat or analyze supported image/video/audio inputs |
+| `atlas models` | Discover models, filter capabilities, page results, and inspect schemas |
+| `atlas chat` | Chat or analyze supported inputs; submit JSON conversations using the model's declared protocol |
+| `atlas upload` | Store a reusable media reference without invoking a model |
 | `atlas generate` | Generate image/video/audio/3D outputs, estimate cost, and retrieve tasks |
 | `atlas generate ops` | Inspect local receipts and resume accepted tasks |
+| `atlas generate history` | Find server-side tasks independently of local receipts |
 | `atlas skills` | Install or read the Atlas agent skill |
-| `atlas account` | Show, list, or switch accounts |
+| `atlas account` | Select accounts or read balance, usage, and costs (public reports require API key authentication) |
 | `atlas doctor` | Diagnose local installation and configuration |
 | `atlas update` | Update an official native installation |
 | `atlas version` | Show the installed version |
