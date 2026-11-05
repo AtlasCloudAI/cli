@@ -42,8 +42,19 @@ module.exports = function run(binaryName) {
     }
   });
 
+  // Without this, a signal sent only to this wrapper ends it and leaves the CLI
+  // running with no parent. On Windows the console already signals both.
+  const forwarded = process.platform === "win32" ? [] : ["SIGINT", "SIGTERM", "SIGHUP"];
+  const forward = (signal) => child.kill(signal);
+  for (const signal of forwarded) {
+    process.on(signal, forward);
+  }
+
   child.on("exit", (code, signal) => {
     if (signal) {
+      for (const name of forwarded) {
+        process.removeListener(name, forward);
+      }
       process.kill(process.pid, signal);
       return;
     }
