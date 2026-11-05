@@ -123,7 +123,7 @@ If submission is unknown, inspect the receipt before creating another billable j
 For CI, inject an API key from your secret store and authenticate explicitly:
 
 ```sh
-atlas auth login --token "$ATLASCLOUD_API_KEY"
+printf %s "$ATLASCLOUD_API_KEY" | atlas auth login --token-stdin
 ```
 
 The CLI does not automatically load `.env` or use `ATLASCLOUD_API_KEY` without
