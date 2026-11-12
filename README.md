@@ -202,7 +202,7 @@ custom install path, and remove the unused directory from your user PATH.
 - 🧊 **3D** (14) — Seed3D 2.0 · Tripo H3.1 · Hunyuan 3D Rapid · Hunyuan 3D Pro
 - 💬 **LLM** (83) — Hy4 · DeepSeek V4.1 Flash 1017 · Kimi K3.1 Pro HighSpeed · Kimi K3.1 Pro
 
-- 📚 **Explore more** — [all 547 live models »](https://www.atlascloud.ai/models?utm_source=github&utm_campaign=cli)
+- 📚 **Explore more** — [all 549 live models »](https://www.atlascloud.ai/models?utm_source=github&utm_campaign=cli)
 <!-- ATLAS-MODELS:END -->
 
 ## Task guides
