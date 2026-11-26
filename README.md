@@ -199,10 +199,10 @@ custom install path, and remove the unused directory from your user PATH.
 <!-- ⚠️ Auto-generated from the live model catalog by AtlasCloudAI/.github/scripts/update-models-readme.mjs — do not edit by hand. -->
 - 🎬 **Video** (247) — Seedance 2.5 Flash · Seedance 2.5 · Bach 1.0 Pro · MiniMax H3 Max · MiniMax H3 Fast · Gemini Omni 1.1 Flash
 - 🎨 **Image** (164) — MiniMax H3-Image Highspeed · MiniMax H3-Image · GPT Image 2.6 Sunburst · GPT Image 2.6 Flare
-- 🧊 **3D** (14) — Seed3D 2.0 · Tripo H3.1 · Hunyuan 3D Rapid · Hunyuan 3D Pro
-- 💬 **LLM** (97) — Hy4 · Gemini 4 Neon · Gemini 4 Hydrogen · Gemini 4 Carbon
+- 🧊 **3D** (17) — Seed3D 2.0 · Tripo H3.1 · Hunyuan 3D Rapid · Hunyuan 3D Pro
+- 💬 **LLM** (96) — Hy4 · Gemini 4 Neon · Gemini 4 Hydrogen · Gemini 4 Carbon
 
-- 📚 **Explore more** — [all 584 live models »](https://www.atlascloud.ai/models?utm_source=github&utm_campaign=cli)
+- 📚 **Explore more** — [all 586 live models »](https://www.atlascloud.ai/models?utm_source=github&utm_campaign=cli)
 <!-- ATLAS-MODELS:END -->
 
 ## Task guides
